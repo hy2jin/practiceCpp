@@ -56,6 +56,7 @@ CChatServerDlg::CChatServerDlg(CWnd* pParent /*=NULL*/)
 void CChatServerDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_CHAT_LIST, m_List);
 }
 
 BEGIN_MESSAGE_MAP(CChatServerDlg, CDialogEx)
