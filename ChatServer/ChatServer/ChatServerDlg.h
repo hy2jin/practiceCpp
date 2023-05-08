@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include "afxwin.h"
+#include "ListenSocket.h"
 
 
 // CChatServerDlg 대화 상자
@@ -11,6 +13,7 @@ class CChatServerDlg : public CDialogEx
 // 생성입니다.
 public:
 	CChatServerDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
+	CListenSocket m_ListenSocket;
 
 // 대화 상자 데이터입니다.
 	enum { IDD = IDD_CHATSERVER_DIALOG };
@@ -29,4 +32,6 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CListBox m_List;
 };
