@@ -35,4 +35,5 @@ private:
 public:
 	afx_msg void OnBnClickedInputButton();
 	afx_msg void OnLbnSelchangeChatList();
+	afx_msg void OnBnClickedResetButton();
 };

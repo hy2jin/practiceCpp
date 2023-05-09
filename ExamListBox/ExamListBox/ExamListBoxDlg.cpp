@@ -65,6 +65,7 @@ BEGIN_MESSAGE_MAP(CExamListBoxDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_INPUT_BUTTON, &CExamListBoxDlg::OnBnClickedInputButton)
 	ON_LBN_SELCHANGE(IDC_CHAT_LIST, &CExamListBoxDlg::OnLbnSelchangeChatList)
+	ON_BN_CLICKED(IDC_RESET_BUTTON, &CExamListBoxDlg::OnBnClickedResetButton)
 END_MESSAGE_MAP()
 
 
@@ -169,7 +170,7 @@ void CExamListBoxDlg::OnBnClickedInputButton()
 	// m_chat_list.InsertString(count, str);	// 가장 마지막 위치에 추가 -> -1에 추가하면 된다
 	// m_chat_list.AddString(str);				// AddString 함수는 오름차순으로 정렬된다.
 	m_chat_list.SetCurSel(index);
-	
+	GetDlgItem(IDC_CHAT_EDIT)->SetWindowTextW(_T(""));
 }
 
 
@@ -181,5 +182,14 @@ void CExamListBoxDlg::OnLbnSelchangeChatList()
 	{
 		m_chat_list.GetText(index, str);
 		SetDlgItemText(IDC_CHAT_EDIT, str);
+	}
+}
+
+
+void CExamListBoxDlg::OnBnClickedResetButton()
+{
+	if (m_chat_list.GetCount())
+	{
+	m_chat_list.ResetContent();
 	}
 }
