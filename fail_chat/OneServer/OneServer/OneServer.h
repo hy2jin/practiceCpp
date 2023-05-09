@@ -1,5 +1,5 @@
 
-// ChatServer.h : PROJECT_NAME 응용 프로그램에 대한 주 헤더 파일입니다.
+// OneServer.h : PROJECT_NAME 응용 프로그램에 대한 주 헤더 파일입니다.
 //
 
 #pragma once
@@ -11,14 +11,14 @@
 #include "resource.h"		// 주 기호입니다.
 
 
-// CChatServerApp:
-// 이 클래스의 구현에 대해서는 ChatServer.cpp을 참조하십시오.
+// COneServerApp:
+// 이 클래스의 구현에 대해서는 OneServer.cpp을 참조하십시오.
 //
 
-class CChatServerApp : public CWinApp
+class COneServerApp : public CWinApp
 {
 public:
-	CChatServerApp();
+	COneServerApp();
 
 // 재정의입니다.
 public:
@@ -29,4 +29,4 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
-extern CChatServerApp theApp;
+extern COneServerApp theApp;

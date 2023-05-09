@@ -1,10 +1,10 @@
 
-// ChatServerDlg.cpp : 구현 파일
+// OneClientDlg.cpp : 구현 파일
 //
 
 #include "stdafx.h"
-#include "ChatServer.h"
-#include "ChatServerDlg.h"
+#include "OneClient.h"
+#include "OneClientDlg.h"
 #include "afxdialogex.h"
 
 #ifdef _DEBUG
@@ -43,31 +43,31 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CChatServerDlg 대화 상자
+// COneClientDlg 대화 상자
 
 
 
-CChatServerDlg::CChatServerDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CChatServerDlg::IDD, pParent)
+COneClientDlg::COneClientDlg(CWnd* pParent /*=NULL*/)
+	: CDialogEx(COneClientDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-void CChatServerDlg::DoDataExchange(CDataExchange* pDX)
+void COneClientDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 }
 
-BEGIN_MESSAGE_MAP(CChatServerDlg, CDialogEx)
+BEGIN_MESSAGE_MAP(COneClientDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 END_MESSAGE_MAP()
 
 
-// CChatServerDlg 메시지 처리기
+// COneClientDlg 메시지 처리기
 
-BOOL CChatServerDlg::OnInitDialog()
+BOOL COneClientDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
@@ -101,7 +101,7 @@ BOOL CChatServerDlg::OnInitDialog()
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
-void CChatServerDlg::OnSysCommand(UINT nID, LPARAM lParam)
+void COneClientDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
 	{
@@ -118,7 +118,7 @@ void CChatServerDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  아래 코드가 필요합니다.  문서/뷰 모델을 사용하는 MFC 응용 프로그램의 경우에는
 //  프레임워크에서 이 작업을 자동으로 수행합니다.
 
-void CChatServerDlg::OnPaint()
+void COneClientDlg::OnPaint()
 {
 	if (IsIconic())
 	{
@@ -145,7 +145,7 @@ void CChatServerDlg::OnPaint()
 
 // 사용자가 최소화된 창을 끄는 동안에 커서가 표시되도록 시스템에서
 //  이 함수를 호출합니다.
-HCURSOR CChatServerDlg::OnQueryDragIcon()
+HCURSOR COneClientDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
