@@ -18,10 +18,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ChatServer.h">
+    <ClInclude Include="ChatClient.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ChatServerDlg.h">
+    <ClInclude Include="ChatClientDlg.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
@@ -33,30 +33,36 @@
     <ClInclude Include="Resource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="ConnectSocket.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ChatServer.cpp">
+    <ClCompile Include="ChatClient.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ChatServerDlg.cpp">
+    <ClCompile Include="ChatClientDlg.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ConnectSocket.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ChatServer.rc">
+    <ResourceCompile Include="ChatClient.rc">
       <Filter>리소스 파일</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\ChatServer.rc2">
+    <None Include="res\ChatClient.rc2">
       <Filter>리소스 파일</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\ChatServer.ico">
+    <Image Include="res\ChatClient.ico">
       <Filter>리소스 파일</Filter>
     </Image>
   </ItemGroup>

@@ -1,19 +1,22 @@
 
-// ChatServerDlg.h : 헤더 파일
+// ChatClientDlg.h : 헤더 파일
 //
 
 #pragma once
+#include "afxwin.h"
+#include "ConnectSocket.h"
 
 
-// CChatServerDlg 대화 상자
-class CChatServerDlg : public CDialogEx
+// CChatClientDlg 대화 상자
+class CChatClientDlg : public CDialogEx
 {
 // 생성입니다.
 public:
-	CChatServerDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
+	CChatClientDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
+	CConnectSocket m_Socket;
 
 // 대화 상자 데이터입니다.
-	enum { IDD = IDD_CHATSERVER_DIALOG };
+	enum { IDD = IDD_CHATCLIENT_DIALOG };
 
 	protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV 지원입니다.
@@ -29,4 +32,8 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CListBox m_List;
+	afx_msg void OnBnClickedButton1();
+	CEdit m_Edit;
 };
