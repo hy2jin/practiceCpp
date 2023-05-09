@@ -5,4 +5,4 @@
 
 #include "stdafx.h"
 
-
+#pragma comment (lib, "WS2_32.lib")
