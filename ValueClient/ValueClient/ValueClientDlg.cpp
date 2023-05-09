@@ -83,3 +83,15 @@ HCURSOR CValueClientDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
+
+
+void CValueClientDlg::OnBnClickedSendButton()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	int value = GetDlgItemInt(IDC_VALUE_EDIT);
+	CSocket temp;
+	temp.Create();
+	temp.Connect(L"192.168.0.75", 26001);
+
+	temp.Send(&value, sizeof(int));
+}
