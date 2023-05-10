@@ -110,7 +110,9 @@ BOOL CChatSDlg::OnInitDialog()
 	{
 		if (m_pListenSocket->Listen())
 		{
-			//☆★성공하면? 아무것도 없다..실패하면 실패 띄우기
+			m_List.AddString(_T("서버 대기"));
+			//m_List.SetCurSel(pMain->m_List.GetCount() -1);
+			m_List.SetCurSel(0);
 		}
 		else
 		{

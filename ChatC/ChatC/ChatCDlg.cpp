@@ -6,6 +6,7 @@
 #include "ChatC.h"
 #include "ChatCDlg.h"
 #include "afxdialogex.h"
+#include "ConnectDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -66,6 +67,8 @@ BEGIN_MESSAGE_MAP(CChatCDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_CONNECT, &CChatCDlg::OnBnClickedButtonConnect)
+	ON_BN_CLICKED(IDC_BUTTON_SEND, &CChatCDlg::OnBnClickedButtonSend)
 END_MESSAGE_MAP()
 
 
@@ -154,3 +157,42 @@ HCURSOR CChatCDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CChatCDlg::OnBnClickedButtonConnect()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CConnectDlg dlg;
+
+	if (dlg.DoModal() == IDOK)
+	{
+		m_Client.Create();	//클라이언트 소켓 생성
+
+		//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
+		m_Client.Connect(dlg.m_strIPAddress, 9000);
+
+		//보내기 버튼 활성화
+		m_ButtonSend.EnableWindow(TRUE);
+
+		//서버연결 비활성화
+		m_ButtonConnect.EnableWindow(FALSE);
+	}
+}
+
+
+void CChatCDlg::OnBnClickedButtonSend()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	//UpdateData(TRUE);
+	//사용자가 UI에서 입력한 메시지를 전송하여
+	//해당 메시지가 제대로 송신되어 서버가 수신하려면
+	//에코형식으로 다시 재전송 받아 리스트에 출력한다.....하고싶었으나 실패로 그냥 바로 보여주기
+
+	GetDlgItemText(IDC_EDIT_DATA, m_strData);
+	m_Client.Send((LPCTSTR)m_strData, m_strData.GetLength() * 2);
+	m_List.AddString(m_strData);
+	SetDlgItemText(IDC_EDIT_DATA, _T(""));
+	
+	//UpdateData(FALSE);
+}

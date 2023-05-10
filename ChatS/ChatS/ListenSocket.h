@@ -14,7 +14,7 @@ public:
 
 	virtual void OnAccept(int nErrorCode);
 	void CloseClientSocket(CSocket* pChild);
-	//void BroadCast(char* pszBuffer, int len);
+	void BroadCast(char* pszBuffer, int len);
 };
 
 

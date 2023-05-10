@@ -101,6 +101,7 @@
   <ItemGroup>
     <ClInclude Include="ChatC.h" />
     <ClInclude Include="ChatCDlg.h" />
+    <ClInclude Include="ClientSocket.h" />
     <ClInclude Include="ConnectDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -109,6 +110,7 @@
   <ItemGroup>
     <ClCompile Include="ChatC.cpp" />
     <ClCompile Include="ChatCDlg.cpp" />
+    <ClCompile Include="ClientSocket.cpp" />
     <ClCompile Include="ConnectDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
