@@ -206,8 +206,8 @@ void CChatCDlg::OnBnClickedButtonSend()
 
 	UpdateData(TRUE);
 	//사용자가 UI에서 입력한 메시지를 전송하여
-	//해당 메시지가 제대로 송신되어 서버가 수신하려면
-	//에코형식으로 다시 재전송 받아 리스트에 출력한다.....하고싶었으나 실패로 그냥 바로 보여주기
+	//해당 메시지가 제대로 송신되어 서버가 수신하면
+	//에코형식으로 다시 재전송 받아 리스트에 출력한다.
 
 	GetDlgItemText(IDC_EDIT_DATA, m_strData);
 	m_Client.Send((LPCTSTR)m_strData, m_strData.GetLength() * 2);
