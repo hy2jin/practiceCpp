@@ -6,7 +6,6 @@
 #include "ChatC.h"
 #include "ChatCDlg.h"
 #include "afxdialogex.h"
-#include "ConnectDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW

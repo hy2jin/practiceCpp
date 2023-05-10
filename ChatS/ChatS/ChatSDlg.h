@@ -19,6 +19,9 @@ public:
 	//클라이언트의 접속을 위해 대기하는 서버소켓
 	CListenSocket* m_pListenSocket;
 
+	CString m_strIpAddress = _T("127.0.0.1");
+	CString m_strPort;
+
 // 대화 상자 데이터입니다.
 	enum { IDD = IDD_CHATS_DIALOG };
 
@@ -39,4 +42,8 @@ protected:
 public:
 	CListBox m_List;
 	afx_msg void OnDestroy();
+	afx_msg void OnBnClickedButtonOpen();
+	CButton m_ButtonOpen;
+	CButton m_ButtonClose;
+	afx_msg void OnBnClickedButtonClose();
 };

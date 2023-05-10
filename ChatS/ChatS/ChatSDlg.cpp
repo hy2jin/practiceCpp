@@ -60,6 +60,8 @@ void CChatSDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, m_List);
+	DDX_Control(pDX, IDC_BUTTON_OPEN, m_ButtonOpen);
+	DDX_Control(pDX, IDC_BUTTON_CLOSE, m_ButtonClose);
 }
 
 BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
@@ -67,6 +69,8 @@ BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_BUTTON_OPEN, &CChatSDlg::OnBnClickedButtonOpen)
+	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CChatSDlg::OnBnClickedButtonClose)
 END_MESSAGE_MAP()
 
 
@@ -102,28 +106,11 @@ BOOL CChatSDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// ☆★TODO: 여기에 추가 초기화 작업을 추가합니다.
+	m_List.AddString(_T("STATUS : CLOSE"));
+	m_List.SetCurSel(m_List.GetCount() - 1);
 
-	m_pListenSocket = new CListenSocket;	//Listen 소켓 생성
-
-	if (m_pListenSocket->Create(9000, SOCK_STREAM))
-	//TCP 소켓을 생성하고 9000번 포트에서 연결대기
-	{
-		if (m_pListenSocket->Listen())
-		{
-			m_List.AddString(_T("서버 대기"));
-			//m_List.SetCurSel(pMain->m_List.GetCount() -1);
-			m_List.SetCurSel(0);
-		}
-		else
-		{
-			AfxMessageBox(_T("연결 실패"));
-		}
-	}
-	else
-	{
-		AfxMessageBox(_T("실패"));
-	}
-
+	m_strPort = _T("9000");
+	SetDlgItemText(IDC_EDIT_PORT, m_strPort);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -202,4 +189,49 @@ void CChatSDlg::OnDestroy()
 
 	m_pListenSocket->ShutDown();
 	m_pListenSocket->Close();
+}
+
+
+void CChatSDlg::OnBnClickedButtonOpen()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_pListenSocket = new CListenSocket;	//Listen 소켓 생성
+
+	if (m_pListenSocket->Create(_ttoi(m_strPort), SOCK_STREAM))
+		//TCP 소켓을 생성하고 9000번 포트에서 연결대기
+	{
+		if (m_pListenSocket->Listen())
+		{
+			m_ButtonOpen.EnableWindow(FALSE);
+			m_ButtonClose.EnableWindow(TRUE);
+			GetDlgItem(IDC_EDIT_PORT)->EnableWindow(FALSE);
+
+			CString temp;
+			temp.Format(_T("STATUS : OPEN (%s/%s)"), m_strIpAddress, m_strPort);
+			m_List.AddString(temp);
+			m_List.SetCurSel(m_List.GetCount() - 1);
+		}
+		else
+		{
+			AfxMessageBox(_T("연결 실패"));
+		}
+	}
+	else
+	{
+		AfxMessageBox(_T("실패"));
+	}
+}
+
+
+void CChatSDlg::OnBnClickedButtonClose()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	OnDestroy();
+
+	m_ButtonOpen.EnableWindow(TRUE);
+	m_ButtonClose.EnableWindow(FALSE);
+	GetDlgItem(IDC_EDIT_PORT)->EnableWindow(TRUE);
+
+	m_List.AddString(_T("STATUS : CLOSE"));
+	m_List.SetCurSel(m_List.GetCount() - 1);
 }
