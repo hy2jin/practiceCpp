@@ -61,6 +61,7 @@ void CChatCDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT_DATA, m_Edit);
 	DDX_Control(pDX, IDC_BUTTON_SEND, m_ButtonSend);
 	DDX_Control(pDX, IDC_BUTTON_CONNECT, m_ButtonConnect);
+	DDX_Control(pDX, IDC_BUTTON_DISCONNECT, m_ButtonDisconnect);
 }
 
 BEGIN_MESSAGE_MAP(CChatCDlg, CDialogEx)
@@ -69,6 +70,7 @@ BEGIN_MESSAGE_MAP(CChatCDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_CONNECT, &CChatCDlg::OnBnClickedButtonConnect)
 	ON_BN_CLICKED(IDC_BUTTON_SEND, &CChatCDlg::OnBnClickedButtonSend)
+	ON_BN_CLICKED(IDC_BUTTON_DISCONNECT, &CChatCDlg::OnBnClickedButtonDisconnect)
 END_MESSAGE_MAP()
 
 
@@ -104,6 +106,8 @@ BOOL CChatCDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	SetDlgItemText(IDC_IPADDRESS1, _T("127.0.0.1"));	//루프백으로 초기화
+	SetDlgItemText(IDC_EDIT_PORT, _T("9000"));
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -162,21 +166,37 @@ HCURSOR CChatCDlg::OnQueryDragIcon()
 void CChatCDlg::OnBnClickedButtonConnect()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	CConnectDlg dlg;
+	GetDlgItemText(IDC_IPADDRESS1, m_strIPAddress);
+	GetDlgItemText(IDC_EDIT_PORT, m_strPort);
 
-	if (dlg.DoModal() == IDOK)
-	{
-		m_Client.Create();	//클라이언트 소켓 생성
 
-		//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
-		m_Client.Connect(dlg.m_strIPAddress, 9000);
+	m_Client.Create();	//클라이언트 소켓 생성
 
-		//보내기 버튼 활성화
-		m_ButtonSend.EnableWindow(TRUE);
+	//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
+	m_Client.Connect(m_strIPAddress, _ttoi(m_strPort));
 
-		//서버연결 비활성화
-		m_ButtonConnect.EnableWindow(FALSE);
-	}
+	//버튼 활성화
+	m_ButtonSend.EnableWindow(TRUE);
+	m_ButtonDisconnect.EnableWindow(TRUE);
+
+	//버튼 비활성화
+	m_ButtonConnect.EnableWindow(FALSE);
+
+}
+
+
+void CChatCDlg::OnBnClickedButtonDisconnect()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	m_Client.ShutDown();
+	m_Client.Close();
+
+	//버튼 활성화
+	m_ButtonSend.EnableWindow(FALSE);
+	m_ButtonDisconnect.EnableWindow(FALSE);
+
+	//버튼 비활성화
+	m_ButtonConnect.EnableWindow(TRUE);
 }
 
 
@@ -196,3 +216,5 @@ void CChatCDlg::OnBnClickedButtonSend()
 	
 	//UpdateData(FALSE);
 }
+
+

@@ -18,6 +18,8 @@ public:
 
 public:
 	CClientSocket m_Client;
+	CString m_strIPAddress;	//IP컨트롤에 입력받은 서버의 IP주소
+	CString m_strPort;
 
 // 대화 상자 데이터입니다.
 	enum { IDD = IDD_CHATC_DIALOG };
@@ -41,8 +43,10 @@ public:
 	CEdit m_Edit;
 	CButton m_ButtonSend;
 	CButton m_ButtonConnect;
+	CButton m_ButtonDisconnect;
 
 	CString m_strData;
 	afx_msg void OnBnClickedButtonConnect();
 	afx_msg void OnBnClickedButtonSend();
+	afx_msg void OnBnClickedButtonDisconnect();
 };
