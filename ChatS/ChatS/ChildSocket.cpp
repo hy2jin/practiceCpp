@@ -63,7 +63,7 @@ void CChildSocket::OnReceive(int nErrorCode)
 
 		//연결된 모든 클라이언트에 해당 메시지 에코
 		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;
-		//pServerSocket->BroadCast(szBuffer, len);
+		pServerSocket->BroadCast(szBuffer, len);
 	}
 
 	CSocket::OnReceive(nErrorCode);

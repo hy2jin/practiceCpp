@@ -105,7 +105,8 @@ BOOL CChatCDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-	SetDlgItemText(IDC_IPADDRESS1, _T("127.0.0.1"));	//루프백으로 초기화
+	//SetDlgItemText(IDC_IPADDRESS1, _T("127.0.0.1"));	//루프백으로 초기화
+	SetDlgItemText(IDC_IPADDRESS1, _T("192.168.0.75"));
 	SetDlgItemText(IDC_EDIT_PORT, _T("9000"));
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -203,17 +204,17 @@ void CChatCDlg::OnBnClickedButtonSend()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
-	//UpdateData(TRUE);
+	UpdateData(TRUE);
 	//사용자가 UI에서 입력한 메시지를 전송하여
 	//해당 메시지가 제대로 송신되어 서버가 수신하려면
 	//에코형식으로 다시 재전송 받아 리스트에 출력한다.....하고싶었으나 실패로 그냥 바로 보여주기
 
 	GetDlgItemText(IDC_EDIT_DATA, m_strData);
 	m_Client.Send((LPCTSTR)m_strData, m_strData.GetLength() * 2);
-	m_List.AddString(m_strData);
+	//m_List.AddString(m_strData);
 	SetDlgItemText(IDC_EDIT_DATA, _T(""));
 	
-	//UpdateData(FALSE);
+	UpdateData(FALSE);
 }
 
 

@@ -19,7 +19,8 @@ public:
 	//클라이언트의 접속을 위해 대기하는 서버소켓
 	CListenSocket* m_pListenSocket;
 
-	CString m_strIpAddress = _T("127.0.0.1");
+	CString m_strIpAddress = _T("192.168.0.75");
+	//CString m_strIpAddress = _T("127.0.0.1");
 	CString m_strPort;
 
 // 대화 상자 데이터입니다.
