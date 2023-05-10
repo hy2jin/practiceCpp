@@ -62,6 +62,7 @@ void CChatSDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST1, m_List);
 	DDX_Control(pDX, IDC_BUTTON_OPEN, m_ButtonOpen);
 	DDX_Control(pDX, IDC_BUTTON_CLOSE, m_ButtonClose);
+	DDX_Control(pDX, IDC_BUTTON_SEND, m_ButtonSend);
 }
 
 BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
@@ -71,7 +72,7 @@ BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_BUTTON_OPEN, &CChatSDlg::OnBnClickedButtonOpen)
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CChatSDlg::OnBnClickedButtonClose)
-	ON_BN_CLICKED(IDC_BUTTON1, &CChatSDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON_SEND, &CChatSDlg::OnBnClickedButtonSend)
 END_MESSAGE_MAP()
 
 
@@ -205,7 +206,9 @@ void CChatSDlg::OnBnClickedButtonOpen()
 		{
 			m_ButtonOpen.EnableWindow(FALSE);
 			m_ButtonClose.EnableWindow(TRUE);
+			m_ButtonSend.EnableWindow(TRUE);
 			GetDlgItem(IDC_EDIT_PORT)->EnableWindow(FALSE);
+			GetDlgItem(IDC_EDIT_DATA)->EnableWindow(TRUE);
 
 			CString temp;
 			temp.Format(_T("STATUS : OPEN (%s/%s)"), m_strIpAddress, m_strPort);
@@ -232,15 +235,18 @@ void CChatSDlg::OnBnClickedButtonClose()
 
 	m_ButtonOpen.EnableWindow(TRUE);
 	m_ButtonClose.EnableWindow(FALSE);
+	m_ButtonSend.EnableWindow(FALSE);
 	GetDlgItem(IDC_EDIT_PORT)->EnableWindow(TRUE);
+	GetDlgItem(IDC_EDIT_DATA)->EnableWindow(FALSE);
 
 	m_List.AddString(_T("STATUS : CLOSE"));
 	m_List.SetCurSel(m_List.GetCount() - 1);
 }
 
 
-void CChatSDlg::OnBnClickedButton1()
+
+void CChatSDlg::OnBnClickedButtonSend()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
+	
 }

@@ -42,10 +42,11 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CListBox m_List;
-	afx_msg void OnDestroy();
-	afx_msg void OnBnClickedButtonOpen();
 	CButton m_ButtonOpen;
 	CButton m_ButtonClose;
+	CButton m_ButtonSend;
+	afx_msg void OnDestroy();
+	afx_msg void OnBnClickedButtonOpen();
 	afx_msg void OnBnClickedButtonClose();
-	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButtonSend();
 };
