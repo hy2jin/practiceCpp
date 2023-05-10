@@ -47,4 +47,5 @@ public:
 	CButton m_ButtonOpen;
 	CButton m_ButtonClose;
 	afx_msg void OnBnClickedButtonClose();
+	afx_msg void OnBnClickedButton1();
 };

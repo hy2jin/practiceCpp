@@ -71,6 +71,7 @@ BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_BUTTON_OPEN, &CChatSDlg::OnBnClickedButtonOpen)
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CChatSDlg::OnBnClickedButtonClose)
+	ON_BN_CLICKED(IDC_BUTTON1, &CChatSDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -226,7 +227,8 @@ void CChatSDlg::OnBnClickedButtonOpen()
 void CChatSDlg::OnBnClickedButtonClose()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	OnDestroy();
+	m_pListenSocket->ShutDown();
+	m_pListenSocket->Close();
 
 	m_ButtonOpen.EnableWindow(TRUE);
 	m_ButtonClose.EnableWindow(FALSE);
@@ -234,4 +236,11 @@ void CChatSDlg::OnBnClickedButtonClose()
 
 	m_List.AddString(_T("STATUS : CLOSE"));
 	m_List.SetCurSel(m_List.GetCount() - 1);
+}
+
+
+void CChatSDlg::OnBnClickedButton1()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
 }

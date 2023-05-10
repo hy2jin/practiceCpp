@@ -178,6 +178,7 @@ void CChatCDlg::OnBnClickedButtonConnect()
 	//버튼 활성화
 	m_ButtonSend.EnableWindow(TRUE);
 	m_ButtonDisconnect.EnableWindow(TRUE);
+	GetDlgItem(IDC_EDIT_DATA)->EnableWindow(TRUE);
 
 	//버튼 비활성화
 	m_ButtonConnect.EnableWindow(FALSE);
@@ -192,11 +193,12 @@ void CChatCDlg::OnBnClickedButtonDisconnect()
 	m_Client.Close();
 
 	//버튼 활성화
-	m_ButtonSend.EnableWindow(FALSE);
-	m_ButtonDisconnect.EnableWindow(FALSE);
+	m_ButtonConnect.EnableWindow(TRUE);
 
 	//버튼 비활성화
-	m_ButtonConnect.EnableWindow(TRUE);
+	m_ButtonSend.EnableWindow(FALSE);
+	m_ButtonDisconnect.EnableWindow(FALSE);
+	GetDlgItem(IDC_EDIT_DATA)->EnableWindow(FALSE);
 }
 
 
