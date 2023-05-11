@@ -234,15 +234,18 @@ void CChatSDlg::OnBnClickedButtonSend()
 
 	char szBuffer[1024];
 	::ZeroMemory(szBuffer, 1024);
-	memcpy(szBuffer, m_strData, m_strData.GetLength() * sizeof(TCHAR));
+
 	int len = 0;
 	if ((len = m_strData.GetLength()) > 0)
 	{
-		CString temp = _T("");
-		temp.Format(_T("SERVER : %s"), m_strData);
-		m_pListenSocket->BroadCast(szBuffer, len);
-		m_List.AddString(temp);
+		CString strChat = _T("");
+		strChat.Format(_T("SERVER : %s"), m_strData);
+		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
+		m_pListenSocket->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
+
+		m_List.AddString(strChat);
 		m_List.SetCurSel(m_List.GetCount() -1);
+
 		SetDlgItemText(IDC_EDIT_DATA, _T(""));
 	}
 }

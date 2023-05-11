@@ -42,7 +42,7 @@ void CChildSocket::OnClose(int nErrorCode)
 void CChildSocket::OnReceive(int nErrorCode)
 {
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	CString temp = _T("");
+	CString strChat = _T("");
 	CString strIPAddress = _T("");
 
 	UINT uPortNumber = 0;
@@ -58,14 +58,15 @@ void CChildSocket::OnReceive(int nErrorCode)
 	{
 		CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();	//데이터 수신했으면 받은 메시지를 리스트에 출력
 
-		temp.Format(_T("[%s] : %s"), strIPAddress, szBuffer);
+		strChat.Format(_T("[%s] : %s"), strIPAddress, szBuffer);
+		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
 
-		pMain->m_List.AddString(temp);
+		pMain->m_List.AddString(strChat);
 		pMain->m_List.SetCurSel(pMain->m_List.GetCount() -1);
 
 		//※연결된 모든 클라이언트에 해당 메시지 에코
 		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;
-		pServerSocket->BroadCast(szBuffer, len);
+		pServerSocket->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
 	}
 
 	CSocket::OnReceive(nErrorCode);
