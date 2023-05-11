@@ -61,9 +61,11 @@ void CChildSocket::OnReceive(int nErrorCode)
 		pMain->m_List.AddString(temp);
 		pMain->m_List.SetCurSel(pMain->m_List.GetCount() -1);
 
-		//연결된 모든 클라이언트에 해당 메시지 에코
+		//※연결된 모든 클라이언트에 해당 메시지 에코
 		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;
-		pServerSocket->BroadCast(szBuffer, len);
+		//※pServerSocket->BroadCast(szBuffer, len);
+		//※에코가 아니라 되돌려 보내자OK
+		pServerSocket->Send(szBuffer, len);
 	}
 
 	CSocket::OnReceive(nErrorCode);
