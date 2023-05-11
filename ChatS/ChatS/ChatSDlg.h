@@ -4,9 +4,10 @@
 
 #pragma once
 #include "afxwin.h"
+#include "resource.h"
 
 #include "ListenSocket.h"
-#include "resource.h"
+#include "ChildSocket.h"
 
 
 // CChatSDlg 대화 상자
@@ -22,6 +23,7 @@ public:
 	CString m_strIpAddress = _T("192.168.0.75");
 	//CString m_strIpAddress = _T("127.0.0.1");
 	CString m_strPort;
+	CString m_strData;
 
 // 대화 상자 데이터입니다.
 	enum { IDD = IDD_CHATS_DIALOG };
@@ -49,4 +51,5 @@ public:
 	afx_msg void OnBnClickedButtonOpen();
 	afx_msg void OnBnClickedButtonClose();
 	afx_msg void OnBnClickedButtonSend();
+	void HandleCloseConnection();
 };

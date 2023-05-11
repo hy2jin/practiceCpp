@@ -36,7 +36,8 @@ void CListenSocket::OnAccept(int nErrorCode)
 
 	//CListenSocket 객체의 주소를 CChildSocket객체에 알려주기 위한 함수를 호출
 	pChild->SetListenSocket(this);	//CChildSocket 클래스에 사용자가 정의한 함수
-	//※m_ptrChildSocketList.AddTail(pChild);
+	m_ptrChildSocketList.AddTail(pChild);
+	//m_pClientSocket = pChild;	//※
 
 	//클라이언트가 접속해옴을 리스트에 출력
 	CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
@@ -52,6 +53,9 @@ void CListenSocket::CloseClientSocket(CSocket* pChild)
 	POSITION pos;
 	pos = m_ptrChildSocketList.Find(pChild);
 
+	pChild->ShutDown();	//클라이언트와 연결된 데이터 소켓을 닫음
+	pChild->Close();
+
 	if (pos != NULL)
 	{
 		pChild->ShutDown();	//클라이언트와 연결된 데이터 소켓을 닫음
@@ -62,16 +66,16 @@ void CListenSocket::CloseClientSocket(CSocket* pChild)
 	delete pChild;	//메모리에서 해제
 }
 
-//void CListenSocket::BroadCast(char* pszBuffer, int len)
-//{
-//	POSITION pos;
-//	pos = m_ptrChildSocketList.GetHeadPosition();
-//	CChildSocket* pChild = NULL;
-//
-//	while (pos != NULL)
-//	{
-//		pChild = (CChildSocket*)m_ptrChildSocketList.GetNext(pos);
-//
-//		if (pChild != NULL) pChild->Send(pszBuffer, len*2);
-//	}
-//}
+void CListenSocket::BroadCast(char* pszBuffer, int len)
+{
+	POSITION pos;
+	pos = m_ptrChildSocketList.GetHeadPosition();
+	CChildSocket* pChild = NULL;
+
+	while (pos != NULL)
+	{
+		pChild = (CChildSocket*)m_ptrChildSocketList.GetNext(pos);
+
+		if (pChild != NULL) pChild->Send(pszBuffer, len*2);
+	}
+}

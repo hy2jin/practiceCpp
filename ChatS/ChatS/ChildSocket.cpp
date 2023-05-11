@@ -32,6 +32,8 @@ void CChildSocket::OnClose(int nErrorCode)
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
 	CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;
 	pServerSocket->CloseClientSocket(this);
+	pServerSocket->ShutDown();
+	pServerSocket->Close();
 
 	CSocket::OnClose(nErrorCode);
 }
@@ -63,9 +65,7 @@ void CChildSocket::OnReceive(int nErrorCode)
 
 		//※연결된 모든 클라이언트에 해당 메시지 에코
 		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;
-		//※pServerSocket->BroadCast(szBuffer, len);
-		//※에코가 아니라 되돌려 보내자OK
-		pServerSocket->Send(szBuffer, len);
+		pServerSocket->BroadCast(szBuffer, len);
 	}
 
 	CSocket::OnReceive(nErrorCode);

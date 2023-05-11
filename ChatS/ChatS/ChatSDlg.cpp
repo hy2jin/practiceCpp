@@ -173,24 +173,7 @@ void CChatSDlg::OnDestroy()
 	CDialogEx::OnDestroy();
 
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	POSITION pos;
-	pos = m_pListenSocket->m_ptrChildSocketList.GetHeadPosition();
-	CChildSocket* pChild = NULL;
-
-	while (pos != NULL)
-	{
-		pChild = (CChildSocket*)m_pListenSocket->m_ptrChildSocketList.GetNext(pos);
-
-		if (pChild != NULL)
-		{
-			pChild->ShutDown();
-			pChild->Close();
-			delete pChild;
-		}
-	}
-
-	m_pListenSocket->ShutDown();
-	m_pListenSocket->Close();
+	HandleCloseConnection();
 }
 
 
@@ -230,8 +213,7 @@ void CChatSDlg::OnBnClickedButtonOpen()
 void CChatSDlg::OnBnClickedButtonClose()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	m_pListenSocket->ShutDown();
-	m_pListenSocket->Close();
+	HandleCloseConnection();
 
 	m_ButtonOpen.EnableWindow(TRUE);
 	m_ButtonClose.EnableWindow(FALSE);
@@ -248,5 +230,44 @@ void CChatSDlg::OnBnClickedButtonClose()
 void CChatSDlg::OnBnClickedButtonSend()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	
+	GetDlgItemText(IDC_EDIT_DATA, m_strData);
+
+	char szBuffer[1024];
+	::ZeroMemory(szBuffer, 1024);
+	memcpy(szBuffer, m_strData, m_strData.GetLength() * sizeof(TCHAR));
+	int len = 0;
+	if ((len = m_strData.GetLength()) > 0)
+	{
+		CString temp = _T("");
+		temp.Format(_T("SERVER : %s"), m_strData);
+		m_pListenSocket->BroadCast(szBuffer, len);
+		m_List.AddString(temp);
+		m_List.SetCurSel(m_List.GetCount() -1);
+		SetDlgItemText(IDC_EDIT_DATA, _T(""));
+	}
+}
+
+void CChatSDlg::HandleCloseConnection()
+{
+	CString msg = _T("서버가 닫힘");
+	m_pListenSocket->Send(msg, msg.GetLength() * 2);
+
+	POSITION pos;
+	pos = m_pListenSocket->m_ptrChildSocketList.GetHeadPosition();
+	CChildSocket* pChild = NULL;
+
+	while (pos != NULL)
+	{
+		pChild = (CChildSocket*)m_pListenSocket->m_ptrChildSocketList.GetNext(pos);
+
+		if (pChild != NULL)
+		{
+			pChild->ShutDown();
+			pChild->Close();
+			delete pChild;
+		}
+	}
+
+	m_pListenSocket->ShutDown();
+	m_pListenSocket->Close();
 }
