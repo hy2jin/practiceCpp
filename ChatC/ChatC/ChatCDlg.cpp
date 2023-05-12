@@ -109,6 +109,8 @@ BOOL CChatCDlg::OnInitDialog()
 	//SetDlgItemText(IDC_IPADDRESS1, _T("192.168.0.75"));
 	SetDlgItemText(IDC_EDIT_PORT, _T("9000"));
 
+	m_TryCount = 0;
+
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
 
@@ -169,29 +171,9 @@ void CChatCDlg::OnBnClickedButtonConnect()
 	GetDlgItemText(IDC_IPADDRESS1, m_strIPAddress);
 	GetDlgItemText(IDC_EDIT_PORT, m_strPort);
 
-
-
 	if (m_Client.Create())	//클라이언트 소켓 생성
 	{
-		//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
-		if (m_Client.Connect(m_strIPAddress, _ttoi(m_strPort)))
-		{
-			//버튼 활성화
-			m_ButtonSend.EnableWindow(TRUE);
-			m_ButtonDisconnect.EnableWindow(TRUE);
-			GetDlgItem(IDC_EDIT_DATA)->EnableWindow(TRUE);
-
-			//버튼 비활성화
-			m_ButtonConnect.EnableWindow(FALSE);
-		}
-		else
-		{
-			CString err;
-			err.Format(_T("%d\n연결실패"), WSAGetLastError());
-			m_Client.ShutDown();
-			m_Client.Close();
-			AfxMessageBox(err);
-		}
+		HandleConnect();
 	}
 	else
 	{
@@ -203,19 +185,10 @@ void CChatCDlg::OnBnClickedButtonConnect()
 
 void CChatCDlg::OnBnClickedButtonDisconnect()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	m_Client.ShutDown();
-	m_Client.Close();
-
-	//버튼 활성화
-	m_ButtonConnect.EnableWindow(TRUE);
-
-	//버튼 비활성화
-	m_ButtonSend.EnableWindow(FALSE);
-	m_ButtonDisconnect.EnableWindow(FALSE);
-	GetDlgItem(IDC_EDIT_DATA)->EnableWindow(FALSE);
+	HandleDisconnect();
+	m_TryCount = 0;
+	HandleEditInputFlag(FALSE);
 }
-
 
 void CChatCDlg::OnBnClickedButtonSend()
 {
@@ -240,4 +213,51 @@ void CChatCDlg::OnBnClickedButtonSend()
 	UpdateData(FALSE);
 }
 
+void CChatCDlg::HandleConnect()
+{
+	CString connectedMsg;
+	//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
+	if (m_Client.Connect(m_strIPAddress, _ttoi(m_strPort)))
+	{
+		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
+		HandleListMsg(connectedMsg);
 
+		m_TryCount = 0;
+		HandleEditInputFlag(TRUE);
+	}
+	else if (m_TryCount < 4)
+	{
+		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
+		HandleListMsg(connectedMsg);
+
+		HandleConnect();
+	}
+	else
+	{
+		connectedMsg.Format(_T("%d회 실패! 안돼 돌아가"), ++m_TryCount);
+		HandleListMsg(connectedMsg);
+
+		OnBnClickedButtonDisconnect();
+	}
+}
+
+void CChatCDlg::HandleDisconnect()
+{
+	m_Client.ShutDown();
+	m_Client.Close();
+}
+
+void CChatCDlg::HandleEditInputFlag(BOOL flag)
+{
+	m_ButtonConnect.EnableWindow(!flag);
+
+	m_ButtonSend.EnableWindow(flag);
+	m_ButtonDisconnect.EnableWindow(flag);
+	GetDlgItem(IDC_EDIT_DATA)->EnableWindow(flag);
+}
+
+void CChatCDlg::HandleListMsg(CString msg)
+{
+	m_List.AddString(msg);
+	m_List.SetCurSel(m_List.GetCount() - 1);
+}

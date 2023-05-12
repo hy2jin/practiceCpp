@@ -48,4 +48,11 @@ public:
 	afx_msg void OnBnClickedButtonConnect();
 	afx_msg void OnBnClickedButtonSend();
 	afx_msg void OnBnClickedButtonDisconnect();
+
+	void HandleConnect();
+	void HandleDisconnect();
+	void HandleEditInputFlag(BOOL flag);
+	void HandleListMsg(CString msg);
+
+	UINT m_TryCount;
 };
