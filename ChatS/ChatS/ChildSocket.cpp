@@ -23,7 +23,7 @@ CChildSocket::~CChildSocket()
 void CChildSocket::SetListenSocket(CAsyncSocket* pSocket)
 //연결된 클라이언트의 소켓주소를 m_ListSSocket에 저장
 {
-	m_pListenSocket = pSocket;
+	m_pListenSoc = pSocket;
 
 	//클라이언트가 접속해옴을 리스트에 출력
 	CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
@@ -39,14 +39,14 @@ void CChildSocket::SetListenSocket(CAsyncSocket* pSocket)
 void CChildSocket::OnClose(int nErrorCode)
 {
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;
+	CListenSocket* pServerSocket = (CListenSocket*)m_pListenSoc;
 	pServerSocket->CloseChildSocket(this);
 	pServerSocket->ShutDown();
 	pServerSocket->Close();
 
 	CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
 	pMain->HandleDisconnectS(2);
-	pMain->HandleConnectS();
+	pMain->OnBnClickedButtonOpenS();
 
 	CSocket::OnClose(nErrorCode);
 }
@@ -77,7 +77,7 @@ void CChildSocket::OnReceive(int nErrorCode)
 		pMain->HandleListMsgS(strChat);
 
 		//※연결된 모든 클라이언트에 해당 메시지 에코
-		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;
+		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSoc;
 		pServerSocket->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
 	}
 

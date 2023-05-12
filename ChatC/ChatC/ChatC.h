@@ -23,6 +23,7 @@ public:
 // 재정의입니다.
 public:
 	virtual BOOL InitInstance();
+	CString m_strPortS = _T("8000");
 
 // 구현입니다.
 
@@ -30,3 +31,5 @@ public:
 };
 
 extern CChatCApp theApp;
+
+extern CString m_strPortS;

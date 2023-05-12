@@ -8,8 +8,8 @@ public:
 	CListenSocket();
 	virtual ~CListenSocket();
 
-
 	virtual void OnAccept(int nErrorCode);
+
+public:
+	CPtrList m_ptrChlidSocketList;
 };
-
-

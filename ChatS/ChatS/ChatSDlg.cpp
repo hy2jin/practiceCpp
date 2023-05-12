@@ -59,10 +59,14 @@ CChatSDlg::CChatSDlg(CWnd* pParent /*=NULL*/)
 void CChatSDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_LIST1, m_ListS);
+	DDX_Control(pDX, IDC_LIST_S, m_ListS);
 	DDX_Control(pDX, IDC_BUTTON_OPEN_S, m_ButtonOpenS);
 	DDX_Control(pDX, IDC_BUTTON_CLOSE_S, m_ButtonCloseS);
 	DDX_Control(pDX, IDC_BUTTON_SEND_S, m_ButtonSendS);
+	DDX_Control(pDX, IDC_LIST_C, m_ListC);
+	DDX_Control(pDX, IDC_BUTTON_SEND_C, m_ButtonSendC);
+	DDX_Control(pDX, IDC_BUTTON_CONNECT_C, m_ButtonConnectC);
+	DDX_Control(pDX, IDC_BUTTON_DISCONNECT_C, m_ButtonDisconnectC);
 }
 
 BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
@@ -73,6 +77,9 @@ BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_OPEN_S, &CChatSDlg::OnBnClickedButtonOpenS)
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE_S, &CChatSDlg::OnBnClickedButtonCloseS)
 	ON_BN_CLICKED(IDC_BUTTON_SEND_S, &CChatSDlg::OnBnClickedButtonSendS)
+	ON_BN_CLICKED(IDC_BUTTON_CONNECT_C, &CChatSDlg::OnBnClickedButtonConnectC)
+	ON_BN_CLICKED(IDC_BUTTON_DISCONNECT_C, &CChatSDlg::OnBnClickedButtonDisconnectC)
+	ON_BN_CLICKED(IDC_BUTTON_SEND_C, &CChatSDlg::OnBnClickedButtonSendC)
 END_MESSAGE_MAP()
 
 
@@ -109,8 +116,8 @@ BOOL CChatSDlg::OnInitDialog()
 
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-	HandleListMsgS(_T("STATUS : CLOSE"));
-	SetDlgItemText(IDC_EDIT_PORT, m_strPortS);
+	HandleListMsgS(_T("STATUS : CLOSED"));
+	SetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -178,8 +185,22 @@ void CChatSDlg::OnDestroy()
 void CChatSDlg::OnBnClickedButtonOpenS()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	GetDlgItemText(IDC_EDIT_PORT, m_strPortS);
-	HandleConnectS();
+	GetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
+
+	m_pListenSoc = new CListenSocket;	//Listen 소켓 생성
+	if (m_pListenSoc->Create(_ttoi(m_strPortS), SOCK_STREAM))	//TCP 소켓을 생성하고 포트에서 연결대기
+	{
+		if (m_pListenSoc->Listen())
+		{
+			HandleEditFlagS(TRUE);
+
+			CString temp;
+			temp.Format(_T("STATUS : OPEN (%s/%s)"), m_strIpS, m_strPortS);
+			HandleListMsgS(temp);
+		}
+		else HandleListMsgS(_T("연결 실패"));
+	}
+	else HandleListMsgS(_T("실패"));
 }
 
 
@@ -197,7 +218,7 @@ void CChatSDlg::OnBnClickedButtonSendS()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	CString m_strData;
-	GetDlgItemText(IDC_EDIT_DATA, m_strData);
+	GetDlgItemText(IDC_EDIT_S, m_strData);
 
 	char szBuffer[1024];
 	::ZeroMemory(szBuffer, 1024);
@@ -209,38 +230,11 @@ void CChatSDlg::OnBnClickedButtonSendS()
 		strChat.Format(_T("SERVER : %s"), m_strData);
 
 		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
-		m_pListenSocket->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
+		m_pListenSoc->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
 
 		HandleListMsgS(strChat);
 
-		SetDlgItemText(IDC_EDIT_DATA, _T(""));
-	}
-}
-
-
-void CChatSDlg::HandleConnectS()
-{
-	m_pListenSocket = new CListenSocket;	//Listen 소켓 생성
-	if (m_pListenSocket->Create(_ttoi(m_strPortS), SOCK_STREAM))
-		//TCP 소켓을 생성하고 9000번 포트에서 연결대기
-	{
-		if (m_pListenSocket->Listen())
-		{
-			HandleEditFlagS(TRUE);
-
-			CString temp;
-			temp.Format(_T("STATUS : OPEN (%s/%s)"), m_strServerIpAddress, m_strPortS);
-			HandleListMsgS(temp);
-
-		}
-		else
-		{
-			AfxMessageBox(_T("연결 실패"));
-		}
-	}
-	else
-	{
-		AfxMessageBox(_T("실패"));
+		SetDlgItemText(IDC_EDIT_S, _T(""));
 	}
 }
 
@@ -248,16 +242,16 @@ void CChatSDlg::HandleConnectS()
 void CChatSDlg::HandleDisconnectS(int flag)
 {
 	CString msg = _T("CLOSED BY SERVER");
-	if (flag == 1) m_pListenSocket->Send(msg, msg.GetLength() * 2);
+	if (flag == 1) m_pListenSoc->Send(msg, msg.GetLength() * 2);
 	else if (flag == 2) HandleListMsgS(_T("CLOSED BY CLIENT"));
 
 	POSITION pos;
-	pos = m_pListenSocket->m_ptrChildSocketList.GetHeadPosition();
+	pos = m_pListenSoc->m_ptrChildSocketList.GetHeadPosition();
 	CChildSocket* pChild = NULL;
 
 	while (pos != NULL)
 	{
-		pChild = (CChildSocket*)m_pListenSocket->m_ptrChildSocketList.GetNext(pos);
+		pChild = (CChildSocket*)m_pListenSoc->m_ptrChildSocketList.GetNext(pos);
 
 		if (pChild != NULL)
 		{
@@ -269,18 +263,19 @@ void CChatSDlg::HandleDisconnectS(int flag)
 		}
 	}
 
-	m_pListenSocket->ShutDown();
-	m_pListenSocket->Close();
+	m_pListenSoc->ShutDown();
+	m_pListenSoc->Close();
 }
 
 
 void CChatSDlg::HandleEditFlagS(BOOL flag)
 {
-	m_ButtonOpenS.EnableWindow(!flag);
-	m_ButtonCloseS.EnableWindow(flag);
+	GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
 	m_ButtonSendS.EnableWindow(flag);
-	GetDlgItem(IDC_EDIT_PORT)->EnableWindow(!flag);
-	GetDlgItem(IDC_EDIT_DATA)->EnableWindow(flag);
+	m_ButtonCloseS.EnableWindow(flag);
+
+	m_ButtonOpenS.EnableWindow(!flag);
+	GetDlgItem(IDC_EDIT_PORT_S)->EnableWindow(!flag);
 }
 
 
@@ -288,4 +283,41 @@ void CChatSDlg::HandleListMsgS(CString msg)
 {
 	m_ListS.AddString(msg);
 	m_ListS.SetCurSel(m_ListS.GetCount() - 1);
+}
+
+
+void CChatSDlg::OnBnClickedButtonConnectC()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CChatSDlg::OnBnClickedButtonDisconnectC()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CChatSDlg::OnBnClickedButtonSendC()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+void CChatSDlg::HandleListMsgC(CString msg)
+{
+	m_ListC.AddString(msg);
+	m_ListC.SetCurSel(m_ListC.GetCount() - 1);
+}
+
+
+void CChatSDlg::HandleEditFlagC(BOOL flag)
+{
+	GetDlgItem(IDC_EDIT_C)->EnableWindow(flag);
+	m_ButtonSendC.EnableWindow(flag);
+	m_ButtonDisconnectC.EnableWindow(flag);
+
+	m_ButtonConnectC.EnableWindow(!flag);
+	GetDlgItem(IDC_IPADDRESS_C)->EnableWindow(!flag);
+	GetDlgItem(IDC_EDIT_PORT_C)->EnableWindow(!flag);
 }

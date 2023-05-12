@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "ChatCDlg.h"
 #include "ListenSocket.h"
-#include "ClientSocket.h"
+#include "ChildSocket.h"
 
 
 // CListenSocket
@@ -24,14 +24,19 @@ CListenSocket::~CListenSocket()
 void CListenSocket::OnAccept(int nErrorCode)
 {
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	CClientSocket* pClient = new CClientSocket();	//서버와 연결할 데이터 소켓 객체 생성
-	BOOL check = Accept(*pClient);
+	CChildSocket* pChild = new CChildSocket();
+
+	BOOL check = Accept(*pChild);
 
 	if (check == FALSE)
 	{
-		delete pClient;
-		AfxMessageBox(_T("FAIL"));
+		delete pChild;
+		AfxMessageBox(_T("접속 허용 실패"));
+		return;
 	}
+
+	pChild->SetListenSocket(this);
+	m_ptrChlidSocketList.AddTail(pChild);
 
 	CSocket::OnAccept(nErrorCode);
 }

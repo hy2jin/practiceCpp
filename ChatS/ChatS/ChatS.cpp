@@ -51,8 +51,6 @@ BOOL CChatSApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-	//m_strPortS = _T("9000");
-
 	if (!AfxSocketInit())
 	{
 		AfxMessageBox(IDP_SOCKETS_INIT_FAILED);
