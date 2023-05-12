@@ -111,7 +111,7 @@ BOOL CChatSDlg::OnInitDialog()
 	m_List.AddString(_T("STATUS : CLOSE"));
 	m_List.SetCurSel(m_List.GetCount() - 1);
 
-	m_strPort = _T("9000");
+	//m_strPort = _T("9000");
 	SetDlgItemText(IDC_EDIT_PORT, m_strPort);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -173,47 +173,21 @@ void CChatSDlg::OnDestroy()
 	CDialogEx::OnDestroy();
 
 	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	HandleCloseConnection();
+	HandleCloseConnection(0);
 }
 
 
 void CChatSDlg::OnBnClickedButtonOpen()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	m_pListenSocket = new CListenSocket;	//Listen 소켓 생성
-
-	if (m_pListenSocket->Create(_ttoi(m_strPort), SOCK_STREAM))
-		//TCP 소켓을 생성하고 9000번 포트에서 연결대기
-	{
-		if (m_pListenSocket->Listen())
-		{
-			m_ButtonOpen.EnableWindow(FALSE);
-			m_ButtonClose.EnableWindow(TRUE);
-			m_ButtonSend.EnableWindow(TRUE);
-			GetDlgItem(IDC_EDIT_PORT)->EnableWindow(FALSE);
-			GetDlgItem(IDC_EDIT_DATA)->EnableWindow(TRUE);
-
-			CString temp;
-			temp.Format(_T("STATUS : OPEN (%s/%s)"), m_strIpAddress, m_strPort);
-			m_List.AddString(temp);
-			m_List.SetCurSel(m_List.GetCount() - 1);
-		}
-		else
-		{
-			AfxMessageBox(_T("연결 실패"));
-		}
-	}
-	else
-	{
-		AfxMessageBox(_T("실패"));
-	}
+	HandleOpenConnection();
 }
 
 
 void CChatSDlg::OnBnClickedButtonClose()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	HandleCloseConnection();
+	HandleCloseConnection(1);
 
 	m_ButtonOpen.EnableWindow(TRUE);
 	m_ButtonClose.EnableWindow(FALSE);
@@ -250,10 +224,11 @@ void CChatSDlg::OnBnClickedButtonSend()
 	}
 }
 
-void CChatSDlg::HandleCloseConnection()
+void CChatSDlg::HandleCloseConnection(int flag)
 {
-	CString msg = _T("서버가 닫힘");
-	m_pListenSocket->Send(msg, msg.GetLength() * 2);
+	CString msg = _T("CLOSED BY SERVER");
+	if (flag == 1) m_pListenSocket->Send(msg, msg.GetLength() * 2);
+	else if (flag == 2) m_List.AddString(_T("CLOSED BY CLIENT"));
 
 	POSITION pos;
 	pos = m_pListenSocket->m_ptrChildSocketList.GetHeadPosition();
@@ -265,6 +240,8 @@ void CChatSDlg::HandleCloseConnection()
 
 		if (pChild != NULL)
 		{
+			pChild->Send(msg, msg.GetLength() * 2);
+
 			pChild->ShutDown();
 			pChild->Close();
 			delete pChild;
@@ -273,4 +250,36 @@ void CChatSDlg::HandleCloseConnection()
 
 	m_pListenSocket->ShutDown();
 	m_pListenSocket->Close();
+}
+
+void CChatSDlg::HandleOpenConnection()
+{
+	m_pListenSocket = new CListenSocket;	//Listen 소켓 생성
+	if (m_pListenSocket->Create(_ttoi(m_strPort), SOCK_STREAM))
+		//TCP 소켓을 생성하고 9000번 포트에서 연결대기
+	{
+		if (m_pListenSocket->Listen())
+		{
+			m_ButtonOpen.EnableWindow(FALSE);
+			m_ButtonClose.EnableWindow(TRUE);
+			m_ButtonSend.EnableWindow(TRUE);
+			GetDlgItem(IDC_EDIT_PORT)->EnableWindow(FALSE);
+			GetDlgItem(IDC_EDIT_DATA)->EnableWindow(TRUE);
+
+
+			CString temp;
+			temp.Format(_T("STATUS : OPEN (%s/%s)"), m_strIpAddress, m_strPort);
+			m_List.AddString(temp);
+			m_List.SetCurSel(m_List.GetCount() - 1);
+
+		}
+		else
+		{
+			AfxMessageBox(_T("연결 실패"));
+		}
+	}
+	else
+	{
+		AfxMessageBox(_T("실패"));
+	}
 }

@@ -6,6 +6,7 @@
 #include "ChildSocket.h"
 #include "ListenSocket.h"
 
+#include "ChatS.h"
 
 // CChildSocket
 
@@ -23,6 +24,15 @@ void CChildSocket::SetListenSocket(CAsyncSocket* pSocket)
 //연결된 클라이언트의 소켓주소를 m_ListSocket에 저장
 {
 	m_pListenSocket = pSocket;
+
+	//클라이언트가 접속해옴을 리스트에 출력
+	CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
+	CString strIPAddress = _T("");
+	UINT uPortNumber = 0;
+	GetPeerName(strIPAddress, uPortNumber);	//연결된 클라이언트의 IP주소와 포트번호 알아내기
+
+	pMain->m_List.AddString(strIPAddress + _T(" 접속"));
+	pMain->m_List.SetCurSel(pMain->m_List.GetCount() - 1);
 }
 
 
@@ -34,6 +44,11 @@ void CChildSocket::OnClose(int nErrorCode)
 	pServerSocket->CloseClientSocket(this);
 	pServerSocket->ShutDown();
 	pServerSocket->Close();
+
+	CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
+	pMain->HandleCloseConnection(2);
+	//Sleep(1000);
+	pMain->HandleOpenConnection();
 
 	CSocket::OnClose(nErrorCode);
 }

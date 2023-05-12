@@ -105,8 +105,8 @@ BOOL CChatCDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-	//SetDlgItemText(IDC_IPADDRESS1, _T("127.0.0.1"));	//루프백으로 초기화
-	SetDlgItemText(IDC_IPADDRESS1, _T("192.168.0.75"));
+	SetDlgItemText(IDC_IPADDRESS1, _T("127.0.0.1"));	//루프백으로 초기화
+	//SetDlgItemText(IDC_IPADDRESS1, _T("192.168.0.75"));
 	SetDlgItemText(IDC_EDIT_PORT, _T("9000"));
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -170,18 +170,33 @@ void CChatCDlg::OnBnClickedButtonConnect()
 	GetDlgItemText(IDC_EDIT_PORT, m_strPort);
 
 
-	m_Client.Create();	//클라이언트 소켓 생성
 
-	//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
-	m_Client.Connect(m_strIPAddress, _ttoi(m_strPort));
+	if (m_Client.Create())	//클라이언트 소켓 생성
+	{
+		//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
+		if (m_Client.Connect(m_strIPAddress, _ttoi(m_strPort)))
+		{
+			//버튼 활성화
+			m_ButtonSend.EnableWindow(TRUE);
+			m_ButtonDisconnect.EnableWindow(TRUE);
+			GetDlgItem(IDC_EDIT_DATA)->EnableWindow(TRUE);
 
-	//버튼 활성화
-	m_ButtonSend.EnableWindow(TRUE);
-	m_ButtonDisconnect.EnableWindow(TRUE);
-	GetDlgItem(IDC_EDIT_DATA)->EnableWindow(TRUE);
-
-	//버튼 비활성화
-	m_ButtonConnect.EnableWindow(FALSE);
+			//버튼 비활성화
+			m_ButtonConnect.EnableWindow(FALSE);
+		}
+		else
+		{
+			CString err;
+			err.Format(_T("%d\n연결실패"), WSAGetLastError());
+			m_Client.ShutDown();
+			m_Client.Close();
+			AfxMessageBox(err);
+		}
+	}
+	else
+	{
+		AfxMessageBox(_T("생성 실패"));
+	}
 
 }
 
@@ -210,11 +225,17 @@ void CChatCDlg::OnBnClickedButtonSend()
 	//사용자가 UI에서 입력한 메시지를 전송하여
 	//해당 메시지가 제대로 송신되어 서버가 수신하면
 	//에코형식으로 다시 재전송 받아 리스트에 출력한다.
-
+	CString m_strData;
 	GetDlgItemText(IDC_EDIT_DATA, m_strData);
-	m_Client.Send((LPCTSTR)m_strData, m_strData.GetLength() * 2);
-	//m_List.AddString(m_strData);
 	SetDlgItemText(IDC_EDIT_DATA, _T(""));
+
+	char szBuffer[1024];
+	::ZeroMemory(szBuffer, 1024);
+	memcpy(szBuffer, m_strData, m_strData.GetLength() * sizeof(TCHAR));
+
+	m_Client.Receive(szBuffer, 1024, 0x40);
+	m_Client.Send((LPCTSTR)m_strData, m_strData.GetLength() * 2);
+	//m_Client.Send(szBuffer, m_strData.GetLength() * 2);
 	
 	UpdateData(FALSE);
 }

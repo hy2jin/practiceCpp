@@ -6,6 +6,7 @@
 #include "ListenSocket.h"
 #include "ChildSocket.h"
 
+#include "ChatS.h"
 
 // CListenSocket
 
@@ -37,13 +38,6 @@ void CListenSocket::OnAccept(int nErrorCode)
 	//CListenSocket 객체의 주소를 CChildSocket객체에 알려주기 위한 함수를 호출
 	pChild->SetListenSocket(this);	//CChildSocket 클래스에 사용자가 정의한 함수
 	m_ptrChildSocketList.AddTail(pChild);
-	//m_pClientSocket = pChild;	//※
-
-	//클라이언트가 접속해옴을 리스트에 출력
-	CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
-
-	pMain->m_List.AddString(_T("서버 접속 허용"));
-	pMain->m_List.SetCurSel(pMain->m_List.GetCount() - 1);
 
 	CSocket::OnAccept(nErrorCode);
 }
@@ -53,9 +47,6 @@ void CListenSocket::CloseClientSocket(CSocket* pChild)
 	POSITION pos;
 	pos = m_ptrChildSocketList.Find(pChild);
 
-	pChild->ShutDown();	//클라이언트와 연결된 데이터 소켓을 닫음
-	pChild->Close();
-
 	if (pos != NULL)
 	{
 		pChild->ShutDown();	//클라이언트와 연결된 데이터 소켓을 닫음
@@ -64,6 +55,11 @@ void CListenSocket::CloseClientSocket(CSocket* pChild)
 
 	m_ptrChildSocketList.RemoveAt(pos);	//리스트에서 제거하고
 	delete pChild;	//메모리에서 해제
+
+	//CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
+	//pMain->HandleCloseConnection(2);
+	//Sleep(1000);
+	//pMain->HandleOpenConnection();
 }
 
 void CListenSocket::BroadCast(char* pszBuffer, int len)
