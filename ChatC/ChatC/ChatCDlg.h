@@ -18,8 +18,8 @@ public:
 
 public:
 	CClientSocket m_Client;
-	CString m_strIPAddress;	//IP컨트롤에 입력받은 서버의 IP주소
-	CString m_strPort;
+	CString m_strInputIpAddress;	//IP컨트롤에 입력받은 서버의 IP주소
+	CString m_strClientPort;
 
 // 대화 상자 데이터입니다.
 	enum { IDD = IDD_CHATC_DIALOG };
@@ -38,21 +38,21 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
 public:
-	CListBox m_List;
-	CEdit m_Edit;
-	CButton m_ButtonSend;
-	CButton m_ButtonConnect;
-	CButton m_ButtonDisconnect;
+	CListBox m_ListC;
+	CButton m_ButtonSendC;
+	CButton m_ButtonConnectC;
+	CButton m_ButtonDisconnectC;
 
-	afx_msg void OnBnClickedButtonConnect();
-	afx_msg void OnBnClickedButtonSend();
-	afx_msg void OnBnClickedButtonDisconnect();
+	afx_msg void OnBnClickedButtonConnectC();
+	afx_msg void OnBnClickedButtonDisconnectC();
+	afx_msg void OnBnClickedButtonSendC();
 
-	void HandleConnect();
-	void HandleDisconnect();
-	void HandleEditInputFlag(BOOL flag);
-	void HandleListMsg(CString msg);
+	void HandleConnectC();
+	void HandleDisconnectC();
+	void HandleEditFlagC(BOOL flag);
+	void HandleListMsgC(CString msg);
 
 	UINT m_TryCount;
 };

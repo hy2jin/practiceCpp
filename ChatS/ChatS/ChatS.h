@@ -23,15 +23,12 @@ public:
 // 재정의입니다.
 public:
 	virtual BOOL InitInstance();
-	CString m_strPort = _T("9000");
-	
+	CString m_strPortS = _T("9000");
 
 // 구현입니다.
-
 	DECLARE_MESSAGE_MAP()
 };
 
 extern CChatSApp theApp;
 
-extern CString m_strPort;
-//extern CString m_strPort = _T("9000");
+extern CString m_strPortS;

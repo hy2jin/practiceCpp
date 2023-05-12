@@ -21,7 +21,7 @@ CChildSocket::~CChildSocket()
 
 // CChildSocket 멤버 함수
 void CChildSocket::SetListenSocket(CAsyncSocket* pSocket)
-//연결된 클라이언트의 소켓주소를 m_ListSocket에 저장
+//연결된 클라이언트의 소켓주소를 m_ListSSocket에 저장
 {
 	m_pListenSocket = pSocket;
 
@@ -31,8 +31,7 @@ void CChildSocket::SetListenSocket(CAsyncSocket* pSocket)
 	UINT uPortNumber = 0;
 	GetPeerName(strIPAddress, uPortNumber);	//연결된 클라이언트의 IP주소와 포트번호 알아내기
 
-	pMain->m_List.AddString(strIPAddress + _T(" 접속"));
-	pMain->m_List.SetCurSel(pMain->m_List.GetCount() - 1);
+	pMain->HandleListMsgS(strIPAddress + _T(" 접속"));
 }
 
 
@@ -41,14 +40,13 @@ void CChildSocket::OnClose(int nErrorCode)
 {
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
 	CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;
-	pServerSocket->CloseClientSocket(this);
+	pServerSocket->CloseChildSocket(this);
 	pServerSocket->ShutDown();
 	pServerSocket->Close();
 
 	CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
-	pMain->HandleCloseConnection(2);
-	//Sleep(1000);
-	pMain->HandleOpenConnection();
+	pMain->HandleDisconnectS(2);
+	pMain->HandleConnectS();
 
 	CSocket::OnClose(nErrorCode);
 }
@@ -76,8 +74,7 @@ void CChildSocket::OnReceive(int nErrorCode)
 		strChat.Format(_T("[%s] : %s"), strIPAddress, szBuffer);
 		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
 
-		pMain->m_List.AddString(strChat);
-		pMain->m_List.SetCurSel(pMain->m_List.GetCount() -1);
+		pMain->HandleListMsgS(strChat);
 
 		//※연결된 모든 클라이언트에 해당 메시지 에코
 		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSocket;

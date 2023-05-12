@@ -17,12 +17,10 @@ class CChatSDlg : public CDialogEx
 public:
 	CChatSDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
 
-	//클라이언트의 접속을 위해 대기하는 서버소켓
-	CListenSocket* m_pListenSocket;
+	CListenSocket* m_pListenSocket;		//클라이언트의 접속을 위해 대기하는 서버소켓
 
-	//CString m_strIpAddress = _T("192.168.0.75");
-	CString m_strIpAddress = _T("127.0.0.1");
-	CString m_strData;
+	//CString m_strServerIpAddress = _T("192.168.0.75");
+	CString m_strServerIpAddress = _T("127.0.0.1");
 
 // 대화 상자 데이터입니다.
 	enum { IDD = IDD_CHATS_DIALOG };
@@ -42,18 +40,20 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-	CListBox m_List;
-	CButton m_ButtonOpen;
-	CButton m_ButtonClose;
-	CButton m_ButtonSend;
+	CListBox m_ListS;
+	CButton m_ButtonOpenS;
+	CButton m_ButtonCloseS;
+	CButton m_ButtonSendS;
 
 	afx_msg void OnDestroy();
-	afx_msg void OnBnClickedButtonOpen();
-	afx_msg void OnBnClickedButtonClose();
-	afx_msg void OnBnClickedButtonSend();
+	afx_msg void OnBnClickedButtonOpenS();
+	afx_msg void OnBnClickedButtonCloseS();
+	afx_msg void OnBnClickedButtonSendS();
 
-	void HandleCloseConnection(int flag);	//0: 출력없음, 1: 서버가 닫음, 2: 클라이언트가 닫음
-	void HandleOpenConnection();
+	void HandleDisconnectS(int flag);	//0: 출력없음, 1: 서버가 닫음, 2: 클라이언트가 닫음
+	void HandleConnectS();
+	void HandleEditFlagS(BOOL flag);
+	void HandleListMsgS(CString msg);
 
-	CString m_strPort = _T("9000");
+	CString m_strPortS = _T("9000");
 };

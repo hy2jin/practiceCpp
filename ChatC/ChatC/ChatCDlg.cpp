@@ -56,20 +56,19 @@ CChatCDlg::CChatCDlg(CWnd* pParent /*=NULL*/)
 void CChatCDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_LIST1, m_List);
-	DDX_Control(pDX, IDC_EDIT_DATA, m_Edit);
-	DDX_Control(pDX, IDC_BUTTON_SEND, m_ButtonSend);
-	DDX_Control(pDX, IDC_BUTTON_CONNECT, m_ButtonConnect);
-	DDX_Control(pDX, IDC_BUTTON_DISCONNECT, m_ButtonDisconnect);
+	DDX_Control(pDX, IDC_LIST1, m_ListC);
+	DDX_Control(pDX, IDC_BUTTON_SEND_C, m_ButtonSendC);
+	DDX_Control(pDX, IDC_BUTTON_CONNECT_C, m_ButtonConnectC);
+	DDX_Control(pDX, IDC_BUTTON_DISCONNECT_C, m_ButtonDisconnectC);
 }
 
 BEGIN_MESSAGE_MAP(CChatCDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_BN_CLICKED(IDC_BUTTON_CONNECT, &CChatCDlg::OnBnClickedButtonConnect)
-	ON_BN_CLICKED(IDC_BUTTON_SEND, &CChatCDlg::OnBnClickedButtonSend)
-	ON_BN_CLICKED(IDC_BUTTON_DISCONNECT, &CChatCDlg::OnBnClickedButtonDisconnect)
+	ON_BN_CLICKED(IDC_BUTTON_CONNECT_C, &CChatCDlg::OnBnClickedButtonConnectC)
+	ON_BN_CLICKED(IDC_BUTTON_SEND_C, &CChatCDlg::OnBnClickedButtonSendC)
+	ON_BN_CLICKED(IDC_BUTTON_DISCONNECT_C, &CChatCDlg::OnBnClickedButtonDisconnectC)
 END_MESSAGE_MAP()
 
 
@@ -164,16 +163,15 @@ HCURSOR CChatCDlg::OnQueryDragIcon()
 }
 
 
-
-void CChatCDlg::OnBnClickedButtonConnect()
+void CChatCDlg::OnBnClickedButtonConnectC()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	GetDlgItemText(IDC_IPADDRESS1, m_strIPAddress);
-	GetDlgItemText(IDC_EDIT_PORT, m_strPort);
+	GetDlgItemText(IDC_IPADDRESS1, m_strInputIpAddress);
+	GetDlgItemText(IDC_EDIT_PORT, m_strClientPort);
 
 	if (m_Client.Create())	//클라이언트 소켓 생성
 	{
-		HandleConnect();
+		HandleConnectC();
 	}
 	else
 	{
@@ -183,14 +181,15 @@ void CChatCDlg::OnBnClickedButtonConnect()
 }
 
 
-void CChatCDlg::OnBnClickedButtonDisconnect()
+void CChatCDlg::OnBnClickedButtonDisconnectC()
 {
-	HandleDisconnect();
+	HandleDisconnectC();
 	m_TryCount = 0;
-	HandleEditInputFlag(FALSE);
+	HandleEditFlagC(FALSE);
 }
 
-void CChatCDlg::OnBnClickedButtonSend()
+
+void CChatCDlg::OnBnClickedButtonSendC()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
@@ -213,51 +212,56 @@ void CChatCDlg::OnBnClickedButtonSend()
 	UpdateData(FALSE);
 }
 
-void CChatCDlg::HandleConnect()
+
+void CChatCDlg::HandleConnectC()
 {
 	CString connectedMsg;
 	//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
-	if (m_Client.Connect(m_strIPAddress, _ttoi(m_strPort)))
+	if (m_Client.Connect(m_strInputIpAddress, _ttoi(m_strClientPort)))
 	{
 		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
-		HandleListMsg(connectedMsg);
+		HandleListMsgC(connectedMsg);
 
 		m_TryCount = 0;
-		HandleEditInputFlag(TRUE);
+		HandleEditFlagC(TRUE);
 	}
 	else if (m_TryCount < 4)
 	{
 		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
-		HandleListMsg(connectedMsg);
+		HandleListMsgC(connectedMsg);
 
-		HandleConnect();
+		HandleConnectC();
 	}
 	else
 	{
 		connectedMsg.Format(_T("%d회 실패! 안돼 돌아가"), ++m_TryCount);
-		HandleListMsg(connectedMsg);
+		HandleListMsgC(connectedMsg);
 
-		OnBnClickedButtonDisconnect();
+		OnBnClickedButtonDisconnectC();
 	}
 }
 
-void CChatCDlg::HandleDisconnect()
+
+void CChatCDlg::HandleDisconnectC()
 {
 	m_Client.ShutDown();
 	m_Client.Close();
 }
 
-void CChatCDlg::HandleEditInputFlag(BOOL flag)
-{
-	m_ButtonConnect.EnableWindow(!flag);
 
-	m_ButtonSend.EnableWindow(flag);
-	m_ButtonDisconnect.EnableWindow(flag);
+void CChatCDlg::HandleEditFlagC(BOOL flag)
+{
+	m_ButtonConnectC.EnableWindow(!flag);
+
+	m_ButtonSendC.EnableWindow(flag);
+	m_ButtonDisconnectC.EnableWindow(flag);
 	GetDlgItem(IDC_EDIT_DATA)->EnableWindow(flag);
 }
 
-void CChatCDlg::HandleListMsg(CString msg)
+
+void CChatCDlg::HandleListMsgC(CString msg)
 {
-	m_List.AddString(msg);
-	m_List.SetCurSel(m_List.GetCount() - 1);
+	m_ListC.AddString(msg);
+	m_ListC.SetCurSel(m_ListC.GetCount() - 1);
 }
+

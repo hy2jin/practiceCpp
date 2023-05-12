@@ -41,12 +41,12 @@ void CClientSocket::OnReceive(int nErrorCode)
 	{
 		CChatCDlg* pMain = (CChatCDlg*)AfxGetMainWnd();	//받은 데이터를 출력한다.
 		CString receivedMsg = LPCTSTR(szBuffer);
-		pMain->HandleListMsg(receivedMsg);
+		pMain->HandleListMsgC(receivedMsg);
 
 		if (receivedMsg == "CLOSED BY SERVER")
 		{
-			pMain->HandleDisconnect();
-			pMain->OnBnClickedButtonConnect();
+			pMain->HandleDisconnectC();
+			pMain->OnBnClickedButtonConnectC();
 		}
 	}
 

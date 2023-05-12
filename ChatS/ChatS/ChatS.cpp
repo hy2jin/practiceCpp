@@ -51,7 +51,7 @@ BOOL CChatSApp::InitInstance()
 
 	CWinApp::InitInstance();
 
-	//m_strPort = _T("9000");
+	//m_strPortS = _T("9000");
 
 	if (!AfxSocketInit())
 	{

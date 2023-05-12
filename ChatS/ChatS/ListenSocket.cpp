@@ -42,7 +42,7 @@ void CListenSocket::OnAccept(int nErrorCode)
 	CSocket::OnAccept(nErrorCode);
 }
 
-void CListenSocket::CloseClientSocket(CSocket* pChild)
+void CListenSocket::CloseChildSocket(CSocket* pChild)
 {
 	POSITION pos;
 	pos = m_ptrChildSocketList.Find(pChild);
@@ -55,11 +55,6 @@ void CListenSocket::CloseClientSocket(CSocket* pChild)
 
 	m_ptrChildSocketList.RemoveAt(pos);	//리스트에서 제거하고
 	delete pChild;	//메모리에서 해제
-
-	//CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
-	//pMain->HandleCloseConnection(2);
-	//Sleep(1000);
-	//pMain->HandleOpenConnection();
 }
 
 void CListenSocket::BroadCast(char* pszBuffer, int len)
