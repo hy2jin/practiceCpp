@@ -33,7 +33,17 @@ void CChildSocket::SetListenSocket(CAsyncSocket* pSocket)
 
 void CChildSocket::OnClose(int nErrorCode)
 {
-	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+	//해당 child socket 끊기
+	CListenSocket* pServerSocket = (CListenSocket*)m_pListenSoc;
+	pServerSocket->CloseChildSocket(this);
+
+	//listen socket
+	pServerSocket->ShutDown();
+	pServerSocket->Close();
+	
+	CChatCDlg* pMain = (CChatCDlg*)AfxGetMainWnd();
+	pMain->HandleDisconnectS(2);
+	pMain->OnBnClickedButtonOpenS();
 
 	CSocket::OnClose(nErrorCode);
 }
@@ -44,24 +54,24 @@ void CChildSocket::OnReceive(int nErrorCode)
 	char szBuffer[1024];
 	::ZeroMemory(szBuffer, 1024);
 
-	CString strRecData = _T("");
 	CString strRecIp = _T("");
 	UINT uPortNumber = 0;
-
 	GetPeerName(strRecIp, uPortNumber);
 
 	int len = 0;
 	if ((len = Receive(szBuffer, 1024)) > 0)
 	{
-		CChatCDlg* pMain = (CChatCDlg*)AfxGetMainWnd();
-
+		//받은 메시지 리스트에 출력
+		CString strRecData = _T("");
 		strRecData.Format(_T("[%s] : %s"), strRecIp, szBuffer);
 		memcpy(szBuffer, strRecData, strRecData.GetLength() * sizeof(TCHAR));
 
+		CChatCDlg* pMain = (CChatCDlg*)AfxGetMainWnd();
 		pMain->HandleListMsgS(strRecData);
 
+		//연결된 모든 클라이언트에 메시지 에코
 		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSoc;
-		//※TODO : BroadCast 만들기!
+		pServerSocket->BroadCast(szBuffer, strRecData.GetLength() * sizeof(TCHAR));
 	}
 
 	CSocket::OnReceive(nErrorCode);

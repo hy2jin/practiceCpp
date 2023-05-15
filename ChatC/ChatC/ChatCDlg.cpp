@@ -184,7 +184,7 @@ void CChatCDlg::OnBnClickedButtonConnectC()
 	}
 	else
 	{
-		AfxMessageBox(_T("생성 실패"));
+		HandleListMsgC(_T("생성 실패"));
 	}
 
 }
@@ -227,23 +227,23 @@ void CChatCDlg::HandleConnectC()
 	CString connectedMsg;
 	//서버의 IP주소와 포트 번호를 설정하여 서버에 연결 시도
 	if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
-	{
+	{	//성공
 		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		m_TryCount = 0;
 		HandleEditFlagC(TRUE);
 	}
-	else if (m_TryCount < 4)
-	{
+	else if (m_TryCount < 2)
+	{	//실패했지만 다시 시도
 		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		HandleConnectC();
 	}
 	else
-	{
-		connectedMsg.Format(_T("%d회 실패! 안돼 돌아가"), ++m_TryCount);
+	{	//마지막도 실패(3)
+		connectedMsg.Format(_T("%d회 실패 다시 연결하세요"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		OnBnClickedButtonDisconnectC();
@@ -276,7 +276,7 @@ void CChatCDlg::HandleListMsgC(CString msg)
 	m_ListC.SetCurSel(m_ListC.GetCount() - 1);
 }
 
-
+////////////////////////////////////////////////////////////////
 
 void CChatCDlg::OnBnClickedButtonOpenS()
 {
@@ -302,13 +302,68 @@ void CChatCDlg::OnBnClickedButtonOpenS()
 
 void CChatCDlg::OnBnClickedButtonCloseS()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	HandleDisconnectS(1);
+	HandleEditFlagS(FALSE);
+	HandleListMsgS(_T("STATUS : CLOSE"));
 }
 
 
 void CChatCDlg::OnBnClickedButtonSendS()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString m_strData;
+	GetDlgItemText(IDC_EDIT_S, m_strData);
+
+	char szBuffer[1024];
+	::ZeroMemory(szBuffer, 1024);
+
+	int len = 0;
+	if ((len = m_strData.GetLength()) > 0)
+	{
+		SetDlgItemText(IDC_EDIT_S, _T(""));
+
+		CString strChat = _T("");
+		strChat.Format(_T("SERVER : %s"), m_strData);
+
+		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
+		m_pListenSoc->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
+
+		HandleListMsgS(strChat);
+	}
+}
+
+
+void CChatCDlg::HandleDisconnectS(UINT flag)
+{
+	CString msg = _T("CLOSED BY SERVER");
+
+	//flag 1: 서버가 닫음, 2: 클라이언트가 닫음, 0: 닫혔다 다시 열기
+	if (flag == 1) {
+		m_pListenSoc->Send(msg, msg.GetLength() * 2);
+	}
+	else if (flag == 2) {
+		HandleListMsgS(_T("CLOSED BY CLIENT"));
+	}
+
+	POSITION pos;
+	pos = m_pListenSoc->m_ptrChildSocketList.GetHeadPosition();
+
+	CChildSocket* pChild = NULL;
+	while (pos != NULL)
+	{
+		pChild = (CChildSocket*)m_pListenSoc->m_ptrChildSocketList.GetNext(pos);
+
+		if (pChild != NULL)
+		{
+			pChild->Send(msg, msg.GetLength() * 2);
+
+			pChild->ShutDown();
+			pChild->Close();
+			delete pChild;
+		}
+	}
+
+	m_pListenSoc->ShutDown();
+	m_pListenSoc->Close();
 }
 
 
@@ -318,9 +373,10 @@ void CChatCDlg::HandleListMsgS(CString msg)
 	m_ListS.SetCurSel(m_ListS.GetCount() - 1);
 }
 
+
 void CChatCDlg::HandleEditFlagS(BOOL flag)
 {
-	GetDlgItem(IDC_EDIT_C)->EnableWindow(flag);
+	GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
 	m_ButtonSendS.EnableWindow(flag);
 	m_ButtonCloseS.EnableWindow(flag);
 

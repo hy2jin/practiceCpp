@@ -36,7 +36,34 @@ void CListenSocket::OnAccept(int nErrorCode)
 	}
 
 	pChild->SetListenSocket(this);
-	m_ptrChlidSocketList.AddTail(pChild);
+	m_ptrChildSocketList.AddTail(pChild);
 
 	CSocket::OnAccept(nErrorCode);
+}
+
+void CListenSocket::BroadCast(char* pszBuffer, int len)
+{
+	POSITION pos;
+	pos = m_ptrChildSocketList.GetHeadPosition();
+	CChildSocket* pChild = NULL;
+
+	while (pos != NULL)
+	{
+		pChild = (CChildSocket*)m_ptrChildSocketList.GetNext(pos);
+		if (pChild != NULL) pChild->Send(pszBuffer, len * 2);
+	}
+}
+
+void CListenSocket::CloseChildSocket(CSocket* pChild)
+{
+	POSITION pos;
+	pos = m_ptrChildSocketList.Find(pChild);
+
+	if (pos != NULL)
+	{
+		pChild->ShutDown();
+		pChild->Close();
+	}
+	m_ptrChildSocketList.RemoveAt(pos);
+	delete pChild;
 }

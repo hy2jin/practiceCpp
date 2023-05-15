@@ -11,5 +11,9 @@ public:
 	virtual void OnAccept(int nErrorCode);
 
 public:
-	CPtrList m_ptrChlidSocketList;
+	CPtrList m_ptrChildSocketList;
+
+	void BroadCast(char* pszBuffer, int len);
+	void CloseChildSocket(CSocket* pChild);
+
 };

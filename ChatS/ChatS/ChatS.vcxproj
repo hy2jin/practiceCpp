@@ -102,6 +102,7 @@
     <ClInclude Include="ChatS.h" />
     <ClInclude Include="ChatSDlg.h" />
     <ClInclude Include="ChildSocket.h" />
+    <ClInclude Include="ClientSocket.h" />
     <ClInclude Include="ListenSocket.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -111,6 +112,7 @@
     <ClCompile Include="ChatS.cpp" />
     <ClCompile Include="ChatSDlg.cpp" />
     <ClCompile Include="ChildSocket.cpp" />
+    <ClCompile Include="ClientSocket.cpp" />
     <ClCompile Include="ListenSocket.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

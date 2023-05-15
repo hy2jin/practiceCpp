@@ -19,14 +19,6 @@ public:
 	CChatCDlg(CWnd* pParent = NULL);	// 표준 생성자입니다.
 
 public:
-	CClientSocket m_ClientSoc;
-	CString m_strIpC;	//IP컨트롤에 입력받은 서버의 IP주소
-	CString m_strPortC;
-
-public:
-	CListenSocket* m_pListenSoc;
-	CString m_strIpS = _T("127.0.0.1");
-	//CString m_strIpS = _T("192.168.0.75");
 
 // 대화 상자 데이터입니다.
 	enum { IDD = IDD_CHATC_DIALOG };
@@ -61,11 +53,12 @@ public:
 	void HandleEditFlagC(BOOL flag);
 	void HandleListMsgC(CString msg);
 
+	CClientSocket m_ClientSoc;
+	CString m_strIpC;	//IP컨트롤에 입력받은 서버의 IP주소
+	CString m_strPortC;
 	UINT m_TryCount;
 
 public:
-	CString m_strPortS = _T("8000");
-
 	CListBox m_ListS;
 	CButton m_ButtonSendS;
 	CButton m_ButtonOpenS;
@@ -77,4 +70,10 @@ public:
 
 	void HandleListMsgS(CString msg);
 	void HandleEditFlagS(BOOL flag);
+	void HandleDisconnectS(UINT flag);	//0: 닫았다 다시 열기, 1: 서버가 닫음, 2: 클라이언트가 닫음
+
+	CListenSocket* m_pListenSoc;
+	CString m_strIpS = _T("127.0.0.1");
+	//CString m_strIpS = _T("192.168.0.75");
+	CString m_strPortS = _T("8000");
 };

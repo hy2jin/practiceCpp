@@ -115,9 +115,14 @@ BOOL CChatSDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 
-	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	//SERVER
 	HandleListMsgS(_T("STATUS : CLOSED"));
 	SetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
+
+	//CLIENT
+	SetDlgItemText(IDC_IPADDRESS_C, _T("127.0.0.1"));
+	SetDlgItemText(IDC_EDIT_PORT_C, _T("8000"));
+	m_TryCount = 0;
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -172,16 +177,6 @@ HCURSOR CChatSDlg::OnQueryDragIcon()
 }
 
 
-
-void CChatSDlg::OnDestroy()
-{
-	CDialogEx::OnDestroy();
-
-	// TODO: 여기에 메시지 처리기 코드를 추가합니다.
-	HandleDisconnectS(0);
-}
-
-
 void CChatSDlg::OnBnClickedButtonOpenS()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
@@ -206,7 +201,6 @@ void CChatSDlg::OnBnClickedButtonOpenS()
 
 void CChatSDlg::OnBnClickedButtonCloseS()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	HandleDisconnectS(1);
 	HandleEditFlagS(FALSE);
 
@@ -226,6 +220,8 @@ void CChatSDlg::OnBnClickedButtonSendS()
 	int len = 0;
 	if ((len = m_strData.GetLength()) > 0)
 	{
+		SetDlgItemText(IDC_EDIT_S, _T(""));
+
 		CString strChat = _T("");
 		strChat.Format(_T("SERVER : %s"), m_strData);
 
@@ -234,7 +230,6 @@ void CChatSDlg::OnBnClickedButtonSendS()
 
 		HandleListMsgS(strChat);
 
-		SetDlgItemText(IDC_EDIT_S, _T(""));
 	}
 }
 
@@ -242,13 +237,19 @@ void CChatSDlg::OnBnClickedButtonSendS()
 void CChatSDlg::HandleDisconnectS(int flag)
 {
 	CString msg = _T("CLOSED BY SERVER");
-	if (flag == 1) m_pListenSoc->Send(msg, msg.GetLength() * 2);
-	else if (flag == 2) HandleListMsgS(_T("CLOSED BY CLIENT"));
+
+	if (flag == 1) {
+		m_pListenSoc->Send(msg, msg.GetLength() * 2);
+	}
+	else if (flag == 2)
+	{
+		HandleListMsgS(_T("CLOSED BY CLIENT"));
+	}
 
 	POSITION pos;
 	pos = m_pListenSoc->m_ptrChildSocketList.GetHeadPosition();
-	CChildSocket* pChild = NULL;
 
+	CChildSocket* pChild = NULL;
 	while (pos != NULL)
 	{
 		pChild = (CChildSocket*)m_pListenSoc->m_ptrChildSocketList.GetNext(pos);
@@ -285,22 +286,84 @@ void CChatSDlg::HandleListMsgS(CString msg)
 	m_ListS.SetCurSel(m_ListS.GetCount() - 1);
 }
 
+///////////////////////////////////////////////////////////
 
 void CChatSDlg::OnBnClickedButtonConnectC()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	GetDlgItemText(IDC_IPADDRESS_C, m_strIpC);
+	GetDlgItemText(IDC_EDIT_PORT_C, m_strPortC);
+
+	if (m_ClientSoc.Create())
+	{
+		HandleConnectC();
+	}
+	else
+	{
+		HandleListMsgC(_T("생성 실패"));
+	}
+}
+
+
+void CChatSDlg::HandleConnectC()
+{
+	CString connectedMsg;
+	
+	if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
+	{	//성공
+		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
+		HandleListMsgC(connectedMsg);
+
+		HandleEditFlagC(TRUE);
+		m_TryCount = 0;
+	}
+	else if (m_TryCount < 2)
+	{	//실패했지만 다시 시도
+		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
+		HandleListMsgC(connectedMsg);
+
+		HandleConnectC();
+	}
+	else
+	{	//마지막 시도 실패(3회차)
+		connectedMsg.Format(_T("%d회 실패! 다시 연결하세요"), ++m_TryCount);
+		HandleListMsgC(connectedMsg);
+
+		OnBnClickedButtonDisconnectC();
+	}
 }
 
 
 void CChatSDlg::OnBnClickedButtonDisconnectC()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	HandleDisconnectC();
+	m_TryCount = 0;
+	HandleEditFlagC(FALSE);
+}
+
+
+void CChatSDlg::HandleDisconnectC()
+{
+	m_ClientSoc.ShutDown();
+	m_ClientSoc.Close();
 }
 
 
 void CChatSDlg::OnBnClickedButtonSendC()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	UpdateData(TRUE);
+
+	CString m_strData;
+	GetDlgItemText(IDC_EDIT_C, m_strData);
+	SetDlgItemText(IDC_EDIT_C, _T(""));
+
+	char szBuffer[1024];
+	::ZeroMemory(szBuffer, 1024);
+	memcpy(szBuffer, m_strData, m_strData.GetLength() * sizeof(TCHAR));
+
+	m_ClientSoc.Receive(szBuffer, 1024, 0x40);
+	m_ClientSoc.Send((LPCTSTR)m_strData, m_strData.GetLength() * 2);
+
+	UpdateData(FALSE);
 }
 
 
