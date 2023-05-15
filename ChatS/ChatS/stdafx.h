@@ -36,8 +36,7 @@
 #include <afxsock.h>            // MFC 소켓 확장
 
 
-
-
+CString GetThisPath();
 
 
 

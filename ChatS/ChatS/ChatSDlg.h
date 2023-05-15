@@ -35,7 +35,12 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 
+//SETTING
+public:
+	void CreateIniFile();
+	void ReadIniFile();
 
+//SERVER
 public:
 	CListBox m_ListS;
 	CButton m_ButtonOpenS;
@@ -51,11 +56,11 @@ public:
 	void HandleDisconnectS(int flag);	//0: 출력없음, 1: 서버가 닫음, 2: 클라이언트가 닫음
 
 	CListenSocket* m_pListenSoc;		//클라이언트의 접속을 위해 대기하는 서버소켓
-	CString m_strIpS = _T("127.0.0.1");
-	//CString m_strIpS = _T("192.168.0.75");
-	CString m_strPortS = _T("9000");
+	CString m_strIpS;
+	CString m_strPortS;
 
 
+//CLIENT
 public:
 	CListBox m_ListC;
 	CButton m_ButtonSendC;

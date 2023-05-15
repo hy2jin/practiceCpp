@@ -23,7 +23,7 @@ public:
 // 재정의입니다.
 public:
 	virtual BOOL InitInstance();
-	CString m_strPortS = _T("9000");
+	CString m_strPortS;
 
 // 구현입니다.
 	DECLARE_MESSAGE_MAP()

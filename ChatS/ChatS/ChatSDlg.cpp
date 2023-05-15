@@ -114,14 +114,19 @@ BOOL CChatSDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
+	ReadIniFile();
 
 	//SERVER
 	HandleListMsgS(_T("STATUS : CLOSED"));
+	if (!m_strIpS.GetLength()) m_strIpS = _T("127.0.0.1");
+	if (!m_strPortS.GetLength()) m_strPortS = _T("1000");
 	SetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
 
 	//CLIENT
-	SetDlgItemText(IDC_IPADDRESS_C, _T("127.0.0.1"));
-	SetDlgItemText(IDC_EDIT_PORT_C, _T("8000"));
+	if (!m_strIpC.GetLength()) m_strIpC = _T("127.0.0.1");
+	if (!m_strPortC.GetLength()) m_strPortC = _T("1000");
+	SetDlgItemText(IDC_IPADDRESS_C, m_strIpC);
+	SetDlgItemText(IDC_EDIT_PORT_C, m_strPortC);
 	m_TryCount = 0;
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -136,6 +141,7 @@ void CChatSDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 	else
 	{
+		CreateIniFile();
 		CDialogEx::OnSysCommand(nID, lParam);
 	}
 }
@@ -174,6 +180,49 @@ void CChatSDlg::OnPaint()
 HCURSOR CChatSDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+
+void CChatSDlg::CreateIniFile()
+{
+	CString strFilePath = GetThisPath() + _T("SETTINGFILE.ini");
+	CString strSection, strKey;
+	
+	CFile file(strFilePath, CFile::modeCreate | CFile::modeWrite);
+	file.Close();
+
+	strSection = _T("SERVER_SETTING");
+	strKey = _T("IP_ADDRESS");
+	WritePrivateProfileString(strSection, strKey, m_strIpS, strFilePath);
+	strKey = _T("PORT");
+	WritePrivateProfileString(strSection, strKey, m_strPortS, strFilePath);
+
+	strSection = _T("CLIENT_SETTING");
+	strKey = _T("IP_ADDRESS");
+	WritePrivateProfileString(strSection, strKey, m_strIpC, strFilePath);
+	strKey = _T("PORT");
+	WritePrivateProfileString(strSection, strKey, m_strPortC, strFilePath);
+}
+
+
+void CChatSDlg::ReadIniFile()
+{
+	CString strFilePath = GetThisPath() + _T("SETTINGFILE.ini");
+	TCHAR inBuffer[100];
+
+	CString strSection = _T("SERVER_SETTING");
+	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), _T("127.0.0.1"), inBuffer, 100, strFilePath);
+	m_strIpS.Format(_T("%s"), inBuffer);
+
+	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strFilePath);
+	m_strPortS.Format(_T("%s"), inBuffer);
+
+	strSection = _T("CLIENT_SETTING");
+	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), _T("127.0.0.1"), inBuffer, 100, strFilePath);
+	m_strIpC.Format(_T("%s"), inBuffer);
+
+	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strFilePath);
+	m_strPortC.Format(_T("%s"), inBuffer);
 }
 
 
