@@ -37,7 +37,9 @@
 
 
 CString GetThisPath();
-
+CString GetDateTime();
+CString GetLogPath();
+void CreateLogFolder();
 
 
 #ifdef _UNICODE

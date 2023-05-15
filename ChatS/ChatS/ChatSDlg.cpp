@@ -1,5 +1,5 @@
-
-// ChatSDlg.cpp : ±¸Çö ÆÄÀÏ
+ï»¿
+// ChatSDlg.cpp : êµ¬í˜„ íŒŒì¼
 //
 
 #include "stdafx.h"
@@ -10,25 +10,28 @@
 #include "ListenSocket.h"
 #include "ChildSocket.h"
 
+#define LOG_FILE_ROOT (CString)GetLogPath()
+#define LOG_FILE_PATH LOG_FILE_ROOT + (CString)GetLogFileName()
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 
-// ÀÀ¿ë ÇÁ·Î±×·¥ Á¤º¸¿¡ »ç¿ëµÇ´Â CAboutDlg ´ëÈ­ »óÀÚÀÔ´Ï´Ù.
+// ì‘ìš© í”„ë¡œê·¸ë¨ ì •ë³´ì— ì‚¬ìš©ë˜ëŠ” CAboutDlg ëŒ€í™” ìƒìì…ë‹ˆë‹¤.
 
 class CAboutDlg : public CDialogEx
 {
 public:
 	CAboutDlg();
 
-// ´ëÈ­ »óÀÚ µ¥ÀÌÅÍÀÔ´Ï´Ù.
+// ëŒ€í™” ìƒì ë°ì´í„°ì…ë‹ˆë‹¤.
 	enum { IDD = IDD_ABOUTBOX };
 
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV Áö¿øÀÔ´Ï´Ù.
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV ì§€ì›ì…ë‹ˆë‹¤.
 
-// ±¸ÇöÀÔ´Ï´Ù.
+// êµ¬í˜„ì…ë‹ˆë‹¤.
 protected:
 	DECLARE_MESSAGE_MAP()
 };
@@ -46,7 +49,7 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CChatSDlg ´ëÈ­ »óÀÚ
+// CChatSDlg ëŒ€í™” ìƒì
 
 
 
@@ -83,15 +86,15 @@ BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
 END_MESSAGE_MAP()
 
 
-// CChatSDlg ¸Ş½ÃÁö Ã³¸®±â
+// CChatSDlg ë©”ì‹œì§€ ì²˜ë¦¬ê¸°
 
 BOOL CChatSDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// ½Ã½ºÅÛ ¸Ş´º¿¡ "Á¤º¸..." ¸Ş´º Ç×¸ñÀ» Ãß°¡ÇÕ´Ï´Ù.
+	// ì‹œìŠ¤í…œ ë©”ë‰´ì— "ì •ë³´..." ë©”ë‰´ í•­ëª©ì„ ì¶”ê°€í•©ë‹ˆë‹¤.
 
-	// IDM_ABOUTBOX´Â ½Ã½ºÅÛ ¸í·É ¹üÀ§¿¡ ÀÖ¾î¾ß ÇÕ´Ï´Ù.
+	// IDM_ABOUTBOXëŠ” ì‹œìŠ¤í…œ ëª…ë ¹ ë²”ìœ„ì— ìˆì–´ì•¼ í•©ë‹ˆë‹¤.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
 
@@ -109,12 +112,13 @@ BOOL CChatSDlg::OnInitDialog()
 		}
 	}
 
-	// ÀÌ ´ëÈ­ »óÀÚÀÇ ¾ÆÀÌÄÜÀ» ¼³Á¤ÇÕ´Ï´Ù.  ÀÀ¿ë ÇÁ·Î±×·¥ÀÇ ÁÖ Ã¢ÀÌ ´ëÈ­ »óÀÚ°¡ ¾Æ´Ò °æ¿ì¿¡´Â
-	//  ÇÁ·¹ÀÓ¿öÅ©°¡ ÀÌ ÀÛ¾÷À» ÀÚµ¿À¸·Î ¼öÇàÇÕ´Ï´Ù.
-	SetIcon(m_hIcon, TRUE);			// Å« ¾ÆÀÌÄÜÀ» ¼³Á¤ÇÕ´Ï´Ù.
-	SetIcon(m_hIcon, FALSE);		// ÀÛÀº ¾ÆÀÌÄÜÀ» ¼³Á¤ÇÕ´Ï´Ù.
+	// ì´ ëŒ€í™” ìƒìì˜ ì•„ì´ì½˜ì„ ì„¤ì •í•©ë‹ˆë‹¤.  ì‘ìš© í”„ë¡œê·¸ë¨ì˜ ì£¼ ì°½ì´ ëŒ€í™” ìƒìê°€ ì•„ë‹ ê²½ìš°ì—ëŠ”
+	//  í”„ë ˆì„ì›Œí¬ê°€ ì´ ì‘ì—…ì„ ìë™ìœ¼ë¡œ ìˆ˜í–‰í•©ë‹ˆë‹¤.
+	SetIcon(m_hIcon, TRUE);			// í° ì•„ì´ì½˜ì„ ì„¤ì •í•©ë‹ˆë‹¤.
+	SetIcon(m_hIcon, FALSE);		// ì‘ì€ ì•„ì´ì½˜ì„ ì„¤ì •í•©ë‹ˆë‹¤.
 
 	ReadIniFile();
+	CreateLogFolder();
 
 	//SERVER
 	HandleListMsgS(_T("STATUS : CLOSED"));
@@ -129,7 +133,7 @@ BOOL CChatSDlg::OnInitDialog()
 	SetDlgItemText(IDC_EDIT_PORT_C, m_strPortC);
 	m_TryCount = 0;
 
-	return TRUE;  // Æ÷Ä¿½º¸¦ ÄÁÆ®·Ñ¿¡ ¼³Á¤ÇÏÁö ¾ÊÀ¸¸é TRUE¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+	return TRUE;  // í¬ì»¤ìŠ¤ë¥¼ ì»¨íŠ¸ë¡¤ì— ì„¤ì •í•˜ì§€ ì•Šìœ¼ë©´ TRUEë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
 }
 
 void CChatSDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -146,19 +150,19 @@ void CChatSDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 }
 
-// ´ëÈ­ »óÀÚ¿¡ ÃÖ¼ÒÈ­ ´ÜÃß¸¦ Ãß°¡ÇÒ °æ¿ì ¾ÆÀÌÄÜÀ» ±×¸®·Á¸é
-//  ¾Æ·¡ ÄÚµå°¡ ÇÊ¿äÇÕ´Ï´Ù.  ¹®¼­/ºä ¸ğµ¨À» »ç¿ëÇÏ´Â MFC ÀÀ¿ë ÇÁ·Î±×·¥ÀÇ °æ¿ì¿¡´Â
-//  ÇÁ·¹ÀÓ¿öÅ©¿¡¼­ ÀÌ ÀÛ¾÷À» ÀÚµ¿À¸·Î ¼öÇàÇÕ´Ï´Ù.
+// ëŒ€í™” ìƒìì— ìµœì†Œí™” ë‹¨ì¶”ë¥¼ ì¶”ê°€í•  ê²½ìš° ì•„ì´ì½˜ì„ ê·¸ë¦¬ë ¤ë©´
+//  ì•„ë˜ ì½”ë“œê°€ í•„ìš”í•©ë‹ˆë‹¤.  ë¬¸ì„œ/ë·° ëª¨ë¸ì„ ì‚¬ìš©í•˜ëŠ” MFC ì‘ìš© í”„ë¡œê·¸ë¨ì˜ ê²½ìš°ì—ëŠ”
+//  í”„ë ˆì„ì›Œí¬ì—ì„œ ì´ ì‘ì—…ì„ ìë™ìœ¼ë¡œ ìˆ˜í–‰í•©ë‹ˆë‹¤.
 
 void CChatSDlg::OnPaint()
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // ±×¸®±â¸¦ À§ÇÑ µğ¹ÙÀÌ½º ÄÁÅØ½ºÆ®ÀÔ´Ï´Ù.
+		CPaintDC dc(this); // ê·¸ë¦¬ê¸°ë¥¼ ìœ„í•œ ë””ë°”ì´ìŠ¤ ì»¨í…ìŠ¤íŠ¸ì…ë‹ˆë‹¤.
 
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// Å¬¶óÀÌ¾ğÆ® »ç°¢Çü¿¡¼­ ¾ÆÀÌÄÜÀ» °¡¿îµ¥¿¡ ¸ÂÃä´Ï´Ù.
+		// í´ë¼ì´ì–¸íŠ¸ ì‚¬ê°í˜•ì—ì„œ ì•„ì´ì½˜ì„ ê°€ìš´ë°ì— ë§ì¶¥ë‹ˆë‹¤.
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
@@ -166,7 +170,7 @@ void CChatSDlg::OnPaint()
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// ¾ÆÀÌÄÜÀ» ±×¸³´Ï´Ù.
+		// ì•„ì´ì½˜ì„ ê·¸ë¦½ë‹ˆë‹¤.
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -175,8 +179,8 @@ void CChatSDlg::OnPaint()
 	}
 }
 
-// »ç¿ëÀÚ°¡ ÃÖ¼ÒÈ­µÈ Ã¢À» ²ô´Â µ¿¾È¿¡ Ä¿¼­°¡ Ç¥½ÃµÇµµ·Ï ½Ã½ºÅÛ¿¡¼­
-//  ÀÌ ÇÔ¼ö¸¦ È£ÃâÇÕ´Ï´Ù.
+// ì‚¬ìš©ìê°€ ìµœì†Œí™”ëœ ì°½ì„ ë„ëŠ” ë™ì•ˆì— ì»¤ì„œê°€ í‘œì‹œë˜ë„ë¡ ì‹œìŠ¤í…œì—ì„œ
+//  ì´ í•¨ìˆ˜ë¥¼ í˜¸ì¶œí•©ë‹ˆë‹¤.
 HCURSOR CChatSDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
@@ -185,19 +189,22 @@ HCURSOR CChatSDlg::OnQueryDragIcon()
 
 void CChatSDlg::CreateIniFile()
 {
-	CString strFilePath = GetThisPath() + _T("SETTINGFILE.ini");
+
+	CString strFilePath = GetThisPath() + _T("\SETTINGFILE.ini");
+	
+	
 	CString strSection, strKey;
 	
 	CFile file(strFilePath, CFile::modeCreate | CFile::modeWrite);
 	file.Close();
 
-	strSection = _T("SERVER_SETTING");
+	strSection = _T("SERVER_INFO");
 	strKey = _T("IP_ADDRESS");
 	WritePrivateProfileString(strSection, strKey, m_strIpS, strFilePath);
 	strKey = _T("PORT");
 	WritePrivateProfileString(strSection, strKey, m_strPortS, strFilePath);
 
-	strSection = _T("CLIENT_SETTING");
+	strSection = _T("CLIENT_INFO");
 	strKey = _T("IP_ADDRESS");
 	WritePrivateProfileString(strSection, strKey, m_strIpC, strFilePath);
 	strKey = _T("PORT");
@@ -210,29 +217,30 @@ void CChatSDlg::ReadIniFile()
 	CString strFilePath = GetThisPath() + _T("SETTINGFILE.ini");
 	TCHAR inBuffer[100];
 
-	CString strSection = _T("SERVER_SETTING");
+	CString strSection = _T("SERVER_INFO");
 	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), _T("127.0.0.1"), inBuffer, 100, strFilePath);
 	m_strIpS.Format(_T("%s"), inBuffer);
 
 	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strFilePath);
 	m_strPortS.Format(_T("%s"), inBuffer);
 
-	strSection = _T("CLIENT_SETTING");
+	strSection = _T("CLIENT_INFO");
 	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), _T("127.0.0.1"), inBuffer, 100, strFilePath);
 	m_strIpC.Format(_T("%s"), inBuffer);
 
 	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strFilePath);
 	m_strPortC.Format(_T("%s"), inBuffer);
+
 }
 
 
 void CChatSDlg::OnBnClickedButtonOpenS()
 {
-	// TODO: ¿©±â¿¡ ÄÁÆ®·Ñ ¾Ë¸² Ã³¸®±â ÄÚµå¸¦ Ãß°¡ÇÕ´Ï´Ù.
+	// TODO: ì—¬ê¸°ì— ì»¨íŠ¸ë¡¤ ì•Œë¦¼ ì²˜ë¦¬ê¸° ì½”ë“œë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
 	GetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
 
-	m_pListenSoc = new CListenSocket;	//Listen ¼ÒÄÏ »ı¼º
-	if (m_pListenSoc->Create(_ttoi(m_strPortS), SOCK_STREAM))	//TCP ¼ÒÄÏÀ» »ı¼ºÇÏ°í Æ÷Æ®¿¡¼­ ¿¬°á´ë±â
+	m_pListenSoc = new CListenSocket;	//Listen ì†Œì¼“ ìƒì„±
+	if (m_pListenSoc->Create(_ttoi(m_strPortS), SOCK_STREAM))	//TCP ì†Œì¼“ì„ ìƒì„±í•˜ê³  í¬íŠ¸ì—ì„œ ì—°ê²°ëŒ€ê¸°
 	{
 		if (m_pListenSoc->Listen())
 		{
@@ -242,9 +250,9 @@ void CChatSDlg::OnBnClickedButtonOpenS()
 			temp.Format(_T("STATUS : OPEN (%s/%s)"), m_strIpS, m_strPortS);
 			HandleListMsgS(temp);
 		}
-		else HandleListMsgS(_T("¿¬°á ½ÇÆĞ"));
+		else HandleListMsgS(_T("ì—°ê²° ì‹¤íŒ¨"));
 	}
-	else HandleListMsgS(_T("½ÇÆĞ"));
+	else HandleListMsgS(_T("ì‹¤íŒ¨"));
 }
 
 
@@ -259,7 +267,7 @@ void CChatSDlg::OnBnClickedButtonCloseS()
 
 void CChatSDlg::OnBnClickedButtonSendS()
 {
-	// TODO: ¿©±â¿¡ ÄÁÆ®·Ñ ¾Ë¸² Ã³¸®±â ÄÚµå¸¦ Ãß°¡ÇÕ´Ï´Ù.
+	// TODO: ì—¬ê¸°ì— ì»¨íŠ¸ë¡¤ ì•Œë¦¼ ì²˜ë¦¬ê¸° ì½”ë“œë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
 	CString m_strData;
 	GetDlgItemText(IDC_EDIT_S, m_strData);
 
@@ -278,7 +286,6 @@ void CChatSDlg::OnBnClickedButtonSendS()
 		m_pListenSoc->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
 
 		HandleListMsgS(strChat);
-
 	}
 }
 
@@ -333,6 +340,16 @@ void CChatSDlg::HandleListMsgS(CString msg)
 {
 	m_ListS.AddString(msg);
 	m_ListS.SetCurSel(m_ListS.GetCount() - 1);
+	//if (isLog)
+	//{
+	//	LogMsg(msg);
+	//}
+}
+
+void CChatSDlg::LogMsg(CString msg)
+{
+	CString strfName, strData = _T("");
+
 }
 
 ///////////////////////////////////////////////////////////
@@ -348,7 +365,7 @@ void CChatSDlg::OnBnClickedButtonConnectC()
 	}
 	else
 	{
-		HandleListMsgC(_T("»ı¼º ½ÇÆĞ"));
+		HandleListMsgC(_T("ìƒì„± ì‹¤íŒ¨"));
 	}
 }
 
@@ -358,7 +375,7 @@ void CChatSDlg::HandleConnectC()
 	CString connectedMsg;
 	
 	if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
-	{	//¼º°ø
+	{	//ì„±ê³µ
 		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
@@ -366,15 +383,15 @@ void CChatSDlg::HandleConnectC()
 		m_TryCount = 0;
 	}
 	else if (m_TryCount < 2)
-	{	//½ÇÆĞÇßÁö¸¸ ´Ù½Ã ½Ãµµ
+	{	//ì‹¤íŒ¨í–ˆì§€ë§Œ ë‹¤ì‹œ ì‹œë„
 		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		HandleConnectC();
 	}
 	else
-	{	//¸¶Áö¸· ½Ãµµ ½ÇÆĞ(3È¸Â÷)
-		connectedMsg.Format(_T("%dÈ¸ ½ÇÆĞ! ´Ù½Ã ¿¬°áÇÏ¼¼¿ä"), ++m_TryCount);
+	{	//ë§ˆì§€ë§‰ ì‹œë„ ì‹¤íŒ¨(3íšŒì°¨)
+		connectedMsg.Format(_T("%díšŒ ì‹¤íŒ¨! ë‹¤ì‹œ ì—°ê²°í•˜ì„¸ìš”"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		OnBnClickedButtonDisconnectC();

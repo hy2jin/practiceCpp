@@ -39,6 +39,7 @@ protected:
 public:
 	void CreateIniFile();
 	void ReadIniFile();
+	void LogMsg(CString msg);
 
 //SERVER
 public:
@@ -51,6 +52,7 @@ public:
 	afx_msg void OnBnClickedButtonCloseS();
 	afx_msg void OnBnClickedButtonSendS();
 
+	//void HandleListMsgS(CString msg, BOOL isLog);
 	void HandleListMsgS(CString msg);
 	void HandleEditFlagS(BOOL flag);
 	void HandleDisconnectS(int flag);	//0: 출력없음, 1: 서버가 닫음, 2: 클라이언트가 닫음

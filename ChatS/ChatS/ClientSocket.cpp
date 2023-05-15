@@ -46,6 +46,5 @@ void CClientSocket::OnReceive(int nErrorCode)
 			pMain->OnBnClickedButtonConnectC();
 		}
 	}
-
 	CSocket::OnReceive(nErrorCode);
 }
