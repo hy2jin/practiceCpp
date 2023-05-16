@@ -119,7 +119,7 @@ BOOL CChatSDlg::OnInitDialog()
 	HandleCreateLogFolder();
 
 	//SERVER
-	HandleListMsgS(L"STATE: CLOSED");
+	HandleListMsgS(_T("STATE: CLOSED"));
 	if (!m_strIpS.GetLength()) m_strIpS = _T("127.0.0.1");
 	if (!m_strPortS.GetLength()) m_strPortS = _T("1000");
 	SetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
@@ -245,12 +245,12 @@ void CChatSDlg::OnBnClickedButtonOpenS()
 			HandleEditFlagS(TRUE);
 
 			CString temp;
-			temp.Format(L"STATE: OPEN (%s/%s)", m_strIpS, m_strPortS);
+			temp.Format(_T("STATE: OPEN (%s/%s)"), m_strIpS, m_strPortS);
 			HandleListMsgS(temp);
 		}
-		else HandleListMsgS(L"연결 실패");
+		else HandleListMsgS(_T("연결 실패"));
 	}
-	else HandleListMsgS(L"실패");
+	else HandleListMsgS(_T("실패"));
 }
 
 
@@ -259,7 +259,7 @@ void CChatSDlg::OnBnClickedButtonCloseS()
 	HandleDisconnectS(1);
 	HandleEditFlagS(FALSE);
 
-	HandleListMsgS(L"STATE: CLOSE");
+	HandleListMsgS(_T("STATE: CLOSE"));
 }
 
 
@@ -277,14 +277,14 @@ void CChatSDlg::OnBnClickedButtonSendS()
 	{
 		SetDlgItemText(IDC_EDIT_S, _T(""));
 
-		CString strChat = L"";
-		strChat.Format(L"SERVER : %s", m_strData);
+		CString strChat = _T("");
+		strChat.Format(_T("SERVER : %s"), m_strData);
 
 		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
 		m_pListenSoc->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
 
 		HandleListMsgS(strChat, FALSE);
-		LogMsgServer(L"SEND " + m_strData);
+		LogMsgServer(_T("SEND ") + m_strData);
 	}
 }
 
@@ -316,7 +316,7 @@ void CChatSDlg::HandleDisconnectS(int flag)	//0: 출력없음, 1: 서버가 닫�
 	}
 	else if (flag == 2)
 	{
-		HandleListMsgS(L"CLOSED BY CLIENT");
+		HandleListMsgS(_T("CLOSED BY CLIENT"));
 	}
 
 	m_pListenSoc->ShutDown();
@@ -386,7 +386,7 @@ void CChatSDlg::HandleConnectC()
 	}
 	else
 	{	//마지막 시도 실패(3회차)
-		connectedMsg.Format(_T("%d회 실패! 다시 연결하세요"), ++m_TryCount);
+		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		OnBnClickedButtonDisconnectC();
@@ -428,10 +428,15 @@ void CChatSDlg::OnBnClickedButtonSendC()
 }
 
 
-void CChatSDlg::HandleListMsgC(CString msg)
+void CChatSDlg::HandleListMsgC(CString msg, BOOL isLog)
 {
 	m_ListC.AddString(msg);
 	m_ListC.SetCurSel(m_ListC.GetCount() - 1);
+
+	if (isLog)
+	{
+		LogMsgClient(msg);
+	}
 }
 
 

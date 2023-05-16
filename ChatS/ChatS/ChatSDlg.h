@@ -72,7 +72,7 @@ public:
 	afx_msg void OnBnClickedButtonDisconnectC();
 	afx_msg void OnBnClickedButtonSendC();
 
-	void HandleListMsgC(CString msg);
+	void HandleListMsgC(CString msg, BOOL isLog = TRUE);
 	void HandleEditFlagC(BOOL flag);
 	void HandleConnectC();
 	void HandleDisconnectC();

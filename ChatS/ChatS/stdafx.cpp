@@ -20,12 +20,17 @@ CString HandleGetThisPath()
 
 void HandleCreateLogFolder()
 {
-	CString logFolderPath = HandleGetThisPath() + _T("Log\\server");
+	CString logFolderPath = HandleGetThisPath() + L"Log";
 	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
 	{
 		CreateDirectory(logFolderPath, NULL);
 	}
-	logFolderPath = HandleGetThisPath() + _T("Log\\client");
+	logFolderPath = HandleGetThisPath() + L"Log\\server";
+	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		CreateDirectory(logFolderPath, NULL);
+	}
+	logFolderPath = HandleGetThisPath() + L"Log\\client";
 	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
 	{
 		CreateDirectory(logFolderPath, NULL);
@@ -57,15 +62,15 @@ void HandleGetLogFileName()
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 
-	serverLogFile.Format(_T("%sLog\\server\\%s.log"), HandleGetThisPath(), HandleGetCurrentTime(TRUE));
-	clientLogFile.Format(_T("%sLog\\client\\%s.log"), HandleGetThisPath(), HandleGetCurrentTime(TRUE));
+	serverLogFile.Format(L"%sLog\\server\\%s.log", HandleGetThisPath(), HandleGetCurrentTime(TRUE));
+	clientLogFile.Format(L"%sLog\\client\\%s.log", HandleGetThisPath(), HandleGetCurrentTime(TRUE));
 }
 
 
 void LogMsg(CString msg, CString logFileName)
 {
 	CStdioFile logFile;
-	if (logFile.Open(logFileName, CFile::modeCreate | CFile::modeNoTruncate | CFile::modeWrite | CFile::typeText | CFile::shareDenyWrite, NULL))
+	if (logFile.Open(logFileName, CFile::modeCreate | CFile::modeNoTruncate | CFile::modeWrite | CFile::typeText | CFile::shareDenyWrite | CFile::typeUnicode, NULL))
 	{
 		logFile.SeekToEnd();  // 로그 파일의 끝으로 이동
 		CStringW logMsg;
