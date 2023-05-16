@@ -371,7 +371,7 @@ void CChatSDlg::HandleConnectC()
 	
 	if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
 	{	//성공
-		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
+		connectedMsg.Format(L"Try-%d : SUCCESS", ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		HandleEditFlagC(TRUE);
@@ -379,14 +379,14 @@ void CChatSDlg::HandleConnectC()
 	}
 	else if (m_TryCount < 2)
 	{	//실패했지만 다시 시도
-		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
+		connectedMsg.Format(L"Try-%d : FAIL", ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		HandleConnectC();
 	}
 	else
 	{	//마지막 시도 실패(3회차)
-		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
+		connectedMsg.Format(L"Try-%d : FAIL", ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		OnBnClickedButtonDisconnectC();

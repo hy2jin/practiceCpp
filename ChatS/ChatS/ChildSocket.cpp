@@ -56,7 +56,7 @@ void CChildSocket::OnClose(int nErrorCode)
 void CChildSocket::OnReceive(int nErrorCode)
 {
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	CStringW strChat = _T("");
+	CStringW strChat = L"";
 	CString strIPAddress = _T("");
 
 	UINT uPortNumber = 0;
@@ -67,8 +67,7 @@ void CChildSocket::OnReceive(int nErrorCode)
 	GetPeerName(strIPAddress, uPortNumber);	//연결된 클라이언트의 IP주소와 포트번호 알아내기
 
 	//실제로 데이터 수신하기
-	int len = 0;
-	if ((len = Receive(szBuffer, 1024)) > 0)	//받은데이터가 있는 경우에만
+	if (Receive(szBuffer, 1024) > 0)	//받은데이터가 있는 경우에만
 	{
 		CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();	//데이터 수신했으면 받은 메시지를 리스트에 출력
 

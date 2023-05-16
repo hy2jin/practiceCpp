@@ -69,14 +69,16 @@ void HandleGetLogFileName()
 
 void LogMsg(CString msg, CString logFileName)
 {
+	
 	CStdioFile logFile;
 	if (logFile.Open(logFileName, CFile::modeCreate | CFile::modeNoTruncate | CFile::modeWrite | CFile::typeText | CFile::shareDenyWrite | CFile::typeUnicode, NULL))
 	{
 		logFile.SeekToEnd();  // 로그 파일의 끝으로 이동
 		CStringW logMsg;
 		logMsg.Format(L"%s %s \n", HandleGetCurrentTime(), msg);
-		logFile.WriteString(logMsg);
-
+		logFile.WriteString(static_cast<LPCTSTR>(logMsg));
+		//TRACE(logMsg);
+		TRACE(static_cast<LPCTSTR>(logMsg));
 		logFile.Close();
 	}
 }

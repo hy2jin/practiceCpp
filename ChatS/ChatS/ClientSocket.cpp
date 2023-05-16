@@ -31,16 +31,18 @@ void CClientSocket::OnClose(int nErrorCode)
 
 void CClientSocket::OnReceive(int nErrorCode)
 {
+	CString strChat = L"";
 	char szBuffer [1024];
 	::ZeroMemory(szBuffer, 1024);
 
 	if (Receive(szBuffer, 1024) > 0)
 	{
 		CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();	//받은 데이터를 출력한다.
-		CString receivedMsg = LPCTSTR(szBuffer);
-		pMain->HandleListMsgC(receivedMsg);
 
-		if (receivedMsg == "CLOSED BY SERVER")
+		strChat.Format(L"%s", szBuffer);
+		pMain->HandleListMsgC(strChat);
+
+		if (strChat == L"CLOSED BY SERVER")
 		{
 			pMain->HandleDisconnectC();
 			pMain->OnBnClickedButtonConnectC();
