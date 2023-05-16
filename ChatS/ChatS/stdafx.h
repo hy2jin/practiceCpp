@@ -37,11 +37,14 @@
 
 
 CString HandleGetThisPath();
-CString HandleGetCurrentTime(BOOL isFileName = FALSE);
+CStringW HandleGetCurrentTime(BOOL isFileName = FALSE);
 
-void HandleCreateLogFolder(CString path);
-CString HandleGetLogFileName(CString path);
+void HandleCreateLogFolder();
+void HandleGetLogFileName();
 void LogMsg(CString msg, CString logFileName);
+CString serverLogFile, clientLogFile;
+void LogMsgServer(CString msg);
+void LogMsgClient(CString msg);
 
 
 

@@ -18,13 +18,20 @@ CString HandleGetThisPath()
 }
 
 
-void HandleCreateLogFolder(CString path)
+void HandleCreateLogFolder()
 {
-	CString logFolderPath = HandleGetThisPath() + _T("Log\\") + path;
+	CString logFolderPath = HandleGetThisPath() + _T("Log\\server");
 	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
 	{
 		CreateDirectory(logFolderPath, NULL);
 	}
+	logFolderPath = HandleGetThisPath() + _T("Log\\client");
+	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		CreateDirectory(logFolderPath, NULL);
+	}
+
+	HandleGetLogFileName();
 }
 
 
@@ -38,37 +45,44 @@ CString HandleGetCurrentTime(BOOL isFileName)
 		currentTime.Format(_T("%04d%02d%02d-%02d%02d"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
 	}
 	else {
-		currentTime.Format(_T("%04d-%02d-%02d [%02d:%02d]"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+		currentTime.Format(_T("%04d-%02d-%02d[%02d:%02d]"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
 	}
 
 	return currentTime;
 }
 
 
-CString HandleGetLogFileName(CString path)
+void HandleGetLogFileName()
 {
-	HandleCreateLogFolder(path);
-
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 
-	CString logFileName;
-	logFileName.Format(_T("%sLog\\%s\\%s.txt"), HandleGetThisPath(), path, HandleGetCurrentTime(TRUE));
-
-	return logFileName;
+	serverLogFile.Format(_T("%sLog\\server\\%s.log"), HandleGetThisPath(), HandleGetCurrentTime(TRUE));
+	clientLogFile.Format(_T("%sLog\\client\\%s.log"), HandleGetThisPath(), HandleGetCurrentTime(TRUE));
 }
 
 
 void LogMsg(CString msg, CString logFileName)
 {
 	CStdioFile logFile;
-	if (logFile.Open(logFileName, CFile::modeCreate | CFile::modeNoTruncate | CFile::modeWrite | CFile::typeText))
+	if (logFile.Open(logFileName, CFile::modeCreate | CFile::modeNoTruncate | CFile::modeWrite | CFile::typeText | CFile::shareDenyWrite, NULL))
 	{
 		logFile.SeekToEnd();  // 로그 파일의 끝으로 이동
-		CString tmp;
-		tmp.Format(_T("%s  %s \n"), HandleGetCurrentTime(), msg);
-		logFile.WriteString(tmp);
+		CStringW logMsg;
+		logMsg.Format(L"%s %s \n", HandleGetCurrentTime(), msg);
+		logFile.WriteString(logMsg);
 
 		logFile.Close();
 	}
+}
+
+
+void LogMsgServer(CString msg)
+{
+	LogMsg(msg, serverLogFile);
+}
+
+void LogMsgClient(CString msg)
+{
+	LogMsg(msg, clientLogFile);
 }

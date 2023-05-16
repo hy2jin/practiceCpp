@@ -39,7 +39,6 @@ protected:
 public:
 	void CreateIniFile();
 	void ReadIniFile();
-	CString serverLogFile, clientLogFile;
 
 //SERVER
 public:
@@ -52,10 +51,10 @@ public:
 	afx_msg void OnBnClickedButtonCloseS();
 	afx_msg void OnBnClickedButtonSendS();
 
-	//void HandleListMsgS(CString msg, BOOL isLog);
-	void HandleListMsgS(CString msg);
+	void HandleListMsgS(CString msg, BOOL isLog = TRUE);
+	//void HandleListMsgS(CString msg);
 	void HandleEditFlagS(BOOL flag);
-	void HandleDisconnectS(int flag);	//0: 출력없음, 1: 서버가 닫음, 2: 클라이언트가 닫음
+	void HandleDisconnectS(int flag);
 
 	CListenSocket* m_pListenSoc;		//클라이언트의 접속을 위해 대기하는 서버소켓
 	CString m_strIpS;

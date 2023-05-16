@@ -27,11 +27,12 @@ void CChildSocket::SetListenSocket(CAsyncSocket* pSocket)
 
 	//클라이언트가 접속해옴을 리스트에 출력
 	CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();
-	CString strIPAddress = _T("");
+	CString strIPAddress = L"";
 	UINT uPortNumber = 0;
 	GetPeerName(strIPAddress, uPortNumber);	//연결된 클라이언트의 IP주소와 포트번호 알아내기
 
-	pMain->HandleListMsgS(strIPAddress + _T(" 접속"));
+	pMain->HandleListMsgS(strIPAddress + L" 접속", FALSE);
+	LogMsgServer(L"ACCESS " + strIPAddress);
 }
 
 
@@ -55,7 +56,7 @@ void CChildSocket::OnClose(int nErrorCode)
 void CChildSocket::OnReceive(int nErrorCode)
 {
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
-	CString strChat = _T("");
+	CStringW strChat = _T("");
 	CString strIPAddress = _T("");
 
 	UINT uPortNumber = 0;
@@ -71,10 +72,11 @@ void CChildSocket::OnReceive(int nErrorCode)
 	{
 		CChatSDlg* pMain = (CChatSDlg*)AfxGetMainWnd();	//데이터 수신했으면 받은 메시지를 리스트에 출력
 
-		strChat.Format(_T("[%s] : %s"), strIPAddress, szBuffer);
+		strChat.Format(L"[%s] : %s", strIPAddress, szBuffer);
 		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
 
-		pMain->HandleListMsgS(strChat);
+		pMain->HandleListMsgS(strChat, FALSE);
+		LogMsgServer(L"RECEIVE " + strChat);
 
 		//※연결된 모든 클라이언트에 해당 메시지 에코
 		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSoc;

@@ -116,11 +116,10 @@ BOOL CChatSDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	ReadIniFile();
-	serverLogFile = HandleGetLogFileName(_T("server"));
-	clientLogFile = HandleGetLogFileName(_T("client"));
+	HandleCreateLogFolder();
 
 	//SERVER
-	HandleListMsgS(_T("STATUS : CLOSED"));
+	HandleListMsgS(L"STATE: CLOSED");
 	if (!m_strIpS.GetLength()) m_strIpS = _T("127.0.0.1");
 	if (!m_strPortS.GetLength()) m_strPortS = _T("1000");
 	SetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
@@ -246,12 +245,12 @@ void CChatSDlg::OnBnClickedButtonOpenS()
 			HandleEditFlagS(TRUE);
 
 			CString temp;
-			temp.Format(_T("STATUS : OPEN (%s/%s)"), m_strIpS, m_strPortS);
+			temp.Format(L"STATE: OPEN (%s/%s)", m_strIpS, m_strPortS);
 			HandleListMsgS(temp);
 		}
-		else HandleListMsgS(_T("연결 실패"));
+		else HandleListMsgS(L"연결 실패");
 	}
-	else HandleListMsgS(_T("실패"));
+	else HandleListMsgS(L"실패");
 }
 
 
@@ -260,7 +259,7 @@ void CChatSDlg::OnBnClickedButtonCloseS()
 	HandleDisconnectS(1);
 	HandleEditFlagS(FALSE);
 
-	HandleListMsgS(_T("STATUS : CLOSE"));
+	HandleListMsgS(L"STATE: CLOSE");
 }
 
 
@@ -278,28 +277,21 @@ void CChatSDlg::OnBnClickedButtonSendS()
 	{
 		SetDlgItemText(IDC_EDIT_S, _T(""));
 
-		CString strChat = _T("");
-		strChat.Format(_T("SERVER : %s"), m_strData);
+		CString strChat = L"";
+		strChat.Format(L"SERVER : %s", m_strData);
 
 		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
 		m_pListenSoc->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
 
-		HandleListMsgS(strChat);
+		HandleListMsgS(strChat, FALSE);
+		LogMsgServer(L"SEND " + m_strData);
 	}
 }
 
 
-void CChatSDlg::HandleDisconnectS(int flag)
+void CChatSDlg::HandleDisconnectS(int flag)	//0: 출력없음, 1: 서버가 닫음, 2: 클라이언트가 닫음
 {
 	CString msg = _T("CLOSED BY SERVER");
-
-	if (flag == 1) {
-		m_pListenSoc->Send(msg, msg.GetLength() * 2);
-	}
-	else if (flag == 2)
-	{
-		HandleListMsgS(_T("CLOSED BY CLIENT"));
-	}
 
 	POSITION pos;
 	pos = m_pListenSoc->m_ptrChildSocketList.GetHeadPosition();
@@ -319,6 +311,14 @@ void CChatSDlg::HandleDisconnectS(int flag)
 		}
 	}
 
+	if (flag == 1) {
+		m_pListenSoc->Send(msg, msg.GetLength() * 2);
+	}
+	else if (flag == 2)
+	{
+		HandleListMsgS(L"CLOSED BY CLIENT");
+	}
+
 	m_pListenSoc->ShutDown();
 	m_pListenSoc->Close();
 }
@@ -335,11 +335,15 @@ void CChatSDlg::HandleEditFlagS(BOOL flag)
 }
 
 
-void CChatSDlg::HandleListMsgS(CString msg)
+void CChatSDlg::HandleListMsgS(CString msg, BOOL isLog)
 {
 	m_ListS.AddString(msg);
 	m_ListS.SetCurSel(m_ListS.GetCount() - 1);
-	LogMsg(msg, serverLogFile);
+
+	if (isLog)
+	{
+		LogMsgServer(msg);
+	}
 }
 
 
@@ -428,7 +432,6 @@ void CChatSDlg::HandleListMsgC(CString msg)
 {
 	m_ListC.AddString(msg);
 	m_ListC.SetCurSel(m_ListC.GetCount() - 1);
-	LogMsg(msg, clientLogFile);
 }
 
 
