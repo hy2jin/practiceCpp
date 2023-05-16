@@ -284,7 +284,7 @@ void CChatSDlg::OnBnClickedButtonSendS()
 		m_pListenSoc->BroadCast(szBuffer, strChat.GetLength() * sizeof(TCHAR));
 
 		HandleListMsgS(strChat, FALSE);
-		LogMsgServer(_T("SEND ") + m_strData);
+		//LogMsgServer(_T("SEND ") + m_strData);
 	}
 }
 
@@ -360,7 +360,7 @@ void CChatSDlg::OnBnClickedButtonConnectC()
 	}
 	else
 	{
-		HandleListMsgC(_T("생성 실패"));
+		HandleListMsgC(_T("Fail Create Socket"));
 	}
 }
 

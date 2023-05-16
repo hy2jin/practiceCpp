@@ -5,6 +5,7 @@
 
 #include "stdafx.h"
 #include "ChatSDlg.h"
+#include <locale.h>
 
 CString HandleGetThisPath()
 {
@@ -50,7 +51,7 @@ CString HandleGetCurrentTime(BOOL isFileName)
 		currentTime.Format(_T("%04d%02d%02d-%02d%02d"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
 	}
 	else {
-		currentTime.Format(_T("%04d-%02d-%02d[%02d:%02d]"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+		currentTime.Format(_T("[%02d:%02d:%02d]"), st.wHour, st.wMinute, st.wSecond);
 	}
 
 	return currentTime;
@@ -69,17 +70,25 @@ void HandleGetLogFileName()
 
 void LogMsg(CString msg, CString logFileName)
 {
-	
-	CStdioFile logFile;
-	if (logFile.Open(logFileName, CFile::modeCreate | CFile::modeNoTruncate | CFile::modeWrite | CFile::typeText | CFile::shareDenyWrite | CFile::typeUnicode, NULL))
-	{
-		logFile.SeekToEnd();  // 로그 파일의 끝으로 이동
-		CStringW logMsg;
-		logMsg.Format(L"%s %s \n", HandleGetCurrentTime(), msg);
-		logFile.WriteString(static_cast<LPCTSTR>(logMsg));
-		//TRACE(logMsg);
-		TRACE(static_cast<LPCTSTR>(logMsg));
-		logFile.Close();
+	CString strData;
+	strData.Format(_T("%s %s \n"), HandleGetCurrentTime(), msg);
+
+	FILE *file = NULL;
+	_wfopen_s(&file, logFileName, _T("r+"));
+	if (file == NULL){
+		_wfopen_s(&file, logFileName, _T("ab"));
+		if (file != NULL){
+			WORD mark = 0xFEFF;
+			fwrite(&mark, sizeof(WORD), 1, file);
+		}
+	}
+	else{
+		fclose(file);
+		_wfopen_s(&file, logFileName, _T("ab"));
+	}
+	if (file != NULL){
+		fwprintf(file, strData);
+		fclose(file);
 	}
 }
 
