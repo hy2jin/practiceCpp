@@ -36,10 +36,13 @@
 #include <afxsock.h>            // MFC 소켓 확장
 
 
-CString GetThisPath();
-CString GetDateTime();
-CString GetLogPath();
-void CreateLogFolder();
+CString HandleGetThisPath();
+CString HandleGetCurrentTime(BOOL isFileName = FALSE);
+
+void HandleCreateLogFolder(CString path);
+CString HandleGetLogFileName(CString path);
+void LogMsg(CString msg, CString logFileName);
+
 
 
 #ifdef _UNICODE

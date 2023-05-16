@@ -10,8 +10,6 @@
 #include "ListenSocket.h"
 #include "ChildSocket.h"
 
-#define LOG_FILE_ROOT (CString)GetLogPath()
-#define LOG_FILE_PATH LOG_FILE_ROOT + (CString)GetLogFileName()
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -118,7 +116,8 @@ BOOL CChatSDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	ReadIniFile();
-	CreateLogFolder();
+	serverLogFile = HandleGetLogFileName(_T("server"));
+	clientLogFile = HandleGetLogFileName(_T("client"));
 
 	//SERVER
 	HandleListMsgS(_T("STATUS : CLOSED"));
@@ -190,7 +189,7 @@ HCURSOR CChatSDlg::OnQueryDragIcon()
 void CChatSDlg::CreateIniFile()
 {
 
-	CString strFilePath = GetThisPath() + _T("\SETTINGFILE.ini");
+	CString strFilePath = HandleGetThisPath() + _T("SETTINGFILE.ini");
 	
 	
 	CString strSection, strKey;
@@ -214,7 +213,7 @@ void CChatSDlg::CreateIniFile()
 
 void CChatSDlg::ReadIniFile()
 {
-	CString strFilePath = GetThisPath() + _T("SETTINGFILE.ini");
+	CString strFilePath = HandleGetThisPath() + _T("SETTINGFILE.ini");
 	TCHAR inBuffer[100];
 
 	CString strSection = _T("SERVER_INFO");
@@ -340,17 +339,9 @@ void CChatSDlg::HandleListMsgS(CString msg)
 {
 	m_ListS.AddString(msg);
 	m_ListS.SetCurSel(m_ListS.GetCount() - 1);
-	//if (isLog)
-	//{
-	//	LogMsg(msg);
-	//}
+	LogMsg(msg, serverLogFile);
 }
 
-void CChatSDlg::LogMsg(CString msg)
-{
-	CString strfName, strData = _T("");
-
-}
 
 ///////////////////////////////////////////////////////////
 
@@ -437,6 +428,7 @@ void CChatSDlg::HandleListMsgC(CString msg)
 {
 	m_ListC.AddString(msg);
 	m_ListC.SetCurSel(m_ListC.GetCount() - 1);
+	LogMsg(msg, clientLogFile);
 }
 
 

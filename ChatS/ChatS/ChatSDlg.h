@@ -39,7 +39,7 @@ protected:
 public:
 	void CreateIniFile();
 	void ReadIniFile();
-	void LogMsg(CString msg);
+	CString serverLogFile, clientLogFile;
 
 //SERVER
 public:
