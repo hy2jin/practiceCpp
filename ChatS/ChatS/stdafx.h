@@ -34,7 +34,7 @@
 #include <afxsock.h>            // MFC 소켓 확장
 
 
-CString thisPath, serverLogPath, clientLogPath;
+CString thisPath, serverLogFolderPath, clientLogFolderPath;
 
 CString GetThisPath();
 CString GetLogFileName();

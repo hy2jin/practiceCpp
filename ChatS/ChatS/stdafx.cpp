@@ -30,24 +30,24 @@ void CreateLogFolder()
 		CreateDirectory(logFolderPath, NULL);
 	}
 
-	serverLogPath = thisPath + _T("Log\\server");
-	if (GetFileAttributes((LPCTSTR)serverLogPath) == INVALID_FILE_ATTRIBUTES)
+	serverLogFolderPath = thisPath + _T("Log\\server");
+	if (GetFileAttributes((LPCTSTR)serverLogFolderPath) == INVALID_FILE_ATTRIBUTES)
 	{
-		CreateDirectory(serverLogPath, NULL);
+		CreateDirectory(serverLogFolderPath, NULL);
 	}
 
-	clientLogPath = thisPath + _T("Log\\client");
-	if (GetFileAttributes((LPCTSTR)clientLogPath) == INVALID_FILE_ATTRIBUTES)
+	clientLogFolderPath = thisPath + _T("Log\\client");
+	if (GetFileAttributes((LPCTSTR)clientLogFolderPath) == INVALID_FILE_ATTRIBUTES)
 	{
-		CreateDirectory(clientLogPath, NULL);
+		CreateDirectory(clientLogFolderPath, NULL);
 	}
 }
 
 
 CString GetLogFileName()
 {
-	DeleteOldFiles(serverLogPath, 60);
-	DeleteOldFiles(clientLogPath, 60);
+	DeleteOldFiles(serverLogFolderPath, 30);
+	DeleteOldFiles(clientLogFolderPath, 30);
 
 	SYSTEMTIME st;
 	GetLocalTime(&st);
@@ -67,12 +67,12 @@ void LogMsg(CString msg, CString folderPath)
 	CString strData;
 	strData.Format(_T("[%02d:%02d:%02d] %s\n"), st.wHour, st.wMinute, st.wSecond, msg);
 
-	CString logFileName = folderPath + GetLogFileName();
+	CString logFilePath = folderPath + GetLogFileName();
 
 	FILE *file = NULL;
-	_wfopen_s(&file, logFileName, _T("r+"));
+	_wfopen_s(&file, logFilePath, _T("r+"));
 	if (file == NULL){
-		_wfopen_s(&file, logFileName, _T("ab"));
+		_wfopen_s(&file, logFilePath, _T("ab"));
 		if (file != NULL){
 			WORD mark = 0xFEFF;
 			fwrite(&mark, sizeof(WORD), 1, file);
@@ -80,7 +80,7 @@ void LogMsg(CString msg, CString folderPath)
 	}
 	else{
 		fclose(file);
-		_wfopen_s(&file, logFileName, _T("ab"));
+		_wfopen_s(&file, logFilePath, _T("ab"));
 	}
 	if (file != NULL){
 		fwprintf(file, strData);
@@ -93,24 +93,24 @@ void LogMsg(CString msg, CString folderPath)
 
 void LogMsgServer(CString msg)
 {
-	LogMsg(msg, serverLogPath);
+	LogMsg(msg, serverLogFolderPath);
 }
 
 
 void LogMsgClient(CString msg)
 {
-	LogMsg(msg, clientLogPath);
+	LogMsg(msg, clientLogFolderPath);
 }
 
 
 
-void DeleteOldFiles(CString logPath, UINT minFlag)
+void DeleteOldFiles(CString folderPath, UINT minFlag)
 {
 	CFileFind finder;
 	CString filePath;
 
 	// 폴더 내의 모든 파일 검색
-	BOOL bWorking = finder.FindFile(logPath + _T("\\*.*"));
+	BOOL bWorking = finder.FindFile(folderPath + _T("\\*.*"));
 
 	// 현재 시간 가져오기
 	CTime currentTime = CTime::GetCurrentTime();
