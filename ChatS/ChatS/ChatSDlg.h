@@ -37,8 +37,27 @@ protected:
 
 //SETTING
 public:
-	void CreateIniFile();
+	void GetThisPath();
 	void ReadIniFile();
+	void CreateIniFile();
+
+	CString thisPath;
+
+public:
+	void CreateLogFolder();
+	CString serverLogFolderPath, clientLogFolderPath;
+
+	CString m_strLogPeriodS, m_strLogPeriodC;
+
+	CString GetLogFileName();
+
+	void LogMsg(CString msg, CString logFileName);
+	void LogMsgServer(CString msg);
+	void LogMsgClient(CString msg);
+	void DeleteOldFiles(CString folderPath, CString period);
+
+
+
 
 //SERVER
 public:
@@ -52,13 +71,15 @@ public:
 	afx_msg void OnBnClickedButtonSendS();
 
 	void HandleListMsgS(CString msg, BOOL isLog = TRUE);
-	//void HandleListMsgS(CString msg);
 	void HandleEditFlagS(BOOL flag);
 	void HandleDisconnectS(int flag);
 
 	CListenSocket* m_pListenSoc;		//클라이언트의 접속을 위해 대기하는 서버소켓
 	CString m_strIpS;
 	CString m_strPortS;
+
+
+
 
 
 //CLIENT
@@ -79,6 +100,5 @@ public:
 
 	CClientSocket m_ClientSoc;
 	UINT m_TryCount;
-	CString m_strIpC;
-	CString m_strPortC;
+	CString m_strIpC, m_strPortC;
 };

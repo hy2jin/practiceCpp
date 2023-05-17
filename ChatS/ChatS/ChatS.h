@@ -24,6 +24,7 @@ public:
 public:
 	virtual BOOL InitInstance();
 	CString m_strPortS;
+	CString m_strLogPeriodS, m_strLogPeriodC;
 
 // 구현입니다.
 	DECLARE_MESSAGE_MAP()
@@ -31,4 +32,5 @@ public:
 
 extern CChatSApp theApp;
 
-extern CString m_strPortS;
+//extern CString m_strPortS;
+//extern CString m_strLogPeriodS, m_strLogPeriodC;

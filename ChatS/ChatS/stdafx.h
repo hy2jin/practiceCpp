@@ -34,16 +34,6 @@
 #include <afxsock.h>            // MFC 소켓 확장
 
 
-CString thisPath, serverLogFolderPath, clientLogFolderPath;
-
-CString GetThisPath();
-CString GetLogFileName();
-
-void CreateLogFolder();
-void LogMsg(CString msg, CString logFileName);
-void LogMsgServer(CString msg);
-void LogMsgClient(CString msg);
-void DeleteOldFiles(CString folderPath, UINT minFlag);
 
 
 #ifdef _UNICODE

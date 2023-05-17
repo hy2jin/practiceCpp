@@ -32,7 +32,7 @@ void CChildSocket::SetListenSocket(CAsyncSocket* pSocket)
 	GetPeerName(strIPAddress, uPortNumber);	//연결된 클라이언트의 IP주소와 포트번호 알아내기
 
 	pMain->HandleListMsgS(strIPAddress + _T(" 접속"), FALSE);
-	LogMsgServer(_T("ACCESS ") + strIPAddress);
+	pMain->LogMsgServer(_T("ACCESS ") + strIPAddress);
 }
 
 
@@ -75,7 +75,7 @@ void CChildSocket::OnReceive(int nErrorCode)
 		memcpy(szBuffer, strChat, strChat.GetLength() * sizeof(TCHAR));
 
 		pMain->HandleListMsgS(strChat, FALSE);
-		LogMsgServer(_T("RECEIVE ") + strChat);
+		pMain->LogMsgServer(_T("RECEIVE ") + strChat);
 
 		//※연결된 모든 클라이언트에 해당 메시지 에코
 		CListenSocket* pServerSocket = (CListenSocket*)m_pListenSoc;

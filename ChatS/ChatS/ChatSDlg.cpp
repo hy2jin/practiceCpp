@@ -10,6 +10,7 @@
 #include "ListenSocket.h"
 #include "ChildSocket.h"
 
+#include <locale.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -124,11 +125,13 @@ BOOL CChatSDlg::OnInitDialog()
 	HandleListMsgS(_T("STATE: CLOSED"));
 	if (!m_strIpS.GetLength()) m_strIpS = _T("127.0.0.1");
 	if (!m_strPortS.GetLength()) m_strPortS = _T("1000");
+	if (!m_strLogPeriodS.GetLength()) m_strLogPeriodS = _T("5");
 	SetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
 
 	//Client
 	if (!m_strIpC.GetLength()) m_strIpC = _T("127.0.0.1");
 	if (!m_strPortC.GetLength()) m_strPortC = _T("1000");
+	if (!m_strLogPeriodC.GetLength()) m_strLogPeriodC = _T("5");
 	SetDlgItemText(IDC_IPADDRESS_C, m_strIpC);
 	SetDlgItemText(IDC_EDIT_PORT_C, m_strPortC);
 	m_TryCount = 0;
@@ -190,7 +193,7 @@ HCURSOR CChatSDlg::OnQueryDragIcon()
 void CChatSDlg::CreateIniFile()
 {
 
-	CString strIniFilePath = GetThisPath() + _T("SETTINGFILE.ini");
+	CString strIniFilePath = thisPath + _T("SETTINGFILE.ini");
 	
 	CString strSection, strKey;
 	
@@ -202,18 +205,22 @@ void CChatSDlg::CreateIniFile()
 	WritePrivateProfileString(strSection, strKey, m_strIpS, strIniFilePath);
 	strKey = _T("PORT");
 	WritePrivateProfileString(strSection, strKey, m_strPortS, strIniFilePath);
+	strKey = _T("LOG_PERIOD");
+	WritePrivateProfileString(strSection, strKey, m_strLogPeriodS, strIniFilePath);
 
 	strSection = _T("CLIENT_INFO");
 	strKey = _T("IP_ADDRESS");
 	WritePrivateProfileString(strSection, strKey, m_strIpC, strIniFilePath);
 	strKey = _T("PORT");
 	WritePrivateProfileString(strSection, strKey, m_strPortC, strIniFilePath);
+	strKey = _T("LOG_PERIOD");
+	WritePrivateProfileString(strSection, strKey, m_strLogPeriodC, strIniFilePath);
 }
 
 
 void CChatSDlg::ReadIniFile()
 {
-	CString strIniFilePath = GetThisPath() + _T("SETTINGFILE.ini");
+	CString strIniFilePath = thisPath + _T("SETTINGFILE.ini");
 	TCHAR inBuffer[100];
 
 	CString strSection = _T("SERVER_INFO");
@@ -223,6 +230,9 @@ void CChatSDlg::ReadIniFile()
 	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strIniFilePath);
 	m_strPortS.Format(_T("%s"), inBuffer);
 
+	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), _T("5"), inBuffer, 100, strIniFilePath);
+	m_strLogPeriodS.Format(_T("%s"), inBuffer);
+
 	strSection = _T("CLIENT_INFO");
 	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), _T("127.0.0.1"), inBuffer, 100, strIniFilePath);
 	m_strIpC.Format(_T("%s"), inBuffer);
@@ -230,6 +240,8 @@ void CChatSDlg::ReadIniFile()
 	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strIniFilePath);
 	m_strPortC.Format(_T("%s"), inBuffer);
 
+	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), _T("5"), inBuffer, 100, strIniFilePath);
+	m_strLogPeriodC.Format(_T("%s"), inBuffer);
 }
 
 
@@ -348,8 +360,6 @@ void CChatSDlg::HandleListMsgS(CString msg, BOOL isLog)
 }
 
 
-///////////////////////////////////////////////////////////
-
 void CChatSDlg::OnBnClickedButtonConnectC()
 {
 	GetDlgItemText(IDC_IPADDRESS_C, m_strIpC);
@@ -450,4 +460,136 @@ void CChatSDlg::HandleEditFlagC(BOOL flag)
 	m_ButtonConnectC.EnableWindow(!flag);
 	GetDlgItem(IDC_IPADDRESS_C)->EnableWindow(!flag);
 	GetDlgItem(IDC_EDIT_PORT_C)->EnableWindow(!flag);
+}
+
+
+void CChatSDlg::GetThisPath()
+{
+	if (!thisPath.GetLength())
+	{
+		TCHAR szPath[1024];
+		GetModuleFileName(NULL, szPath, 1024);
+
+		thisPath.Format(_T("%s"), szPath);
+		thisPath = thisPath.Left(thisPath.ReverseFind('\\') + 1);
+	}
+}
+
+CString CChatSDlg::GetLogFileName()
+{
+	DeleteOldFiles(serverLogFolderPath, m_strLogPeriodS);
+	DeleteOldFiles(clientLogFolderPath, m_strLogPeriodC);
+
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+
+	CString logFileName;
+	logFileName.Format(_T("\\%04d%02d%02d-%02d%02d.log"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+
+	return logFileName;
+}
+
+void CChatSDlg::LogMsg(CString msg, CString folderPath)
+{
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+
+	CString strData;
+	strData.Format(_T("[%02d:%02d:%02d] %s\n"), st.wHour, st.wMinute, st.wSecond, msg);
+
+	CString logFilePath = folderPath + GetLogFileName();
+
+	FILE *file = NULL;
+	_wfopen_s(&file, logFilePath, _T("r+"));
+	if (file == NULL){
+		_wfopen_s(&file, logFilePath, _T("ab"));
+		if (file != NULL){
+			WORD mark = 0xFEFF;
+			fwrite(&mark, sizeof(WORD), 1, file);
+		}
+	}
+	else{
+		fclose(file);
+		_wfopen_s(&file, logFilePath, _T("ab"));
+	}
+	if (file != NULL){
+		fwprintf(file, strData);
+		fclose(file);
+	}
+}
+
+void CChatSDlg::LogMsgServer(CString msg)
+{
+	LogMsg(msg, serverLogFolderPath);
+}
+
+
+void CChatSDlg::LogMsgClient(CString msg)
+{
+	LogMsg(msg, clientLogFolderPath);
+}
+
+void CChatSDlg::CreateLogFolder()
+{
+	CString logFolderPath = thisPath + _T("Log");
+	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		CreateDirectory(logFolderPath, NULL);
+	}
+
+	serverLogFolderPath = thisPath + _T("Log\\server");
+	if (GetFileAttributes((LPCTSTR)serverLogFolderPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		CreateDirectory(serverLogFolderPath, NULL);
+	}
+
+	clientLogFolderPath = thisPath + _T("Log\\client");
+	if (GetFileAttributes((LPCTSTR)clientLogFolderPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		CreateDirectory(clientLogFolderPath, NULL);
+	}
+}
+
+
+
+
+
+
+void CChatSDlg::DeleteOldFiles(CString folderPath, CString period)
+{
+	CFileFind finder;
+	CString filePath;
+	UINT minFlag;
+	minFlag = _ttoi(period);
+
+	//폴더 내의 모든 파일 검색
+	BOOL bWorking = finder.FindFile(folderPath + _T("\\*.*"));
+
+	// 현재 시간 가져오기
+	CTime currentTime = CTime::GetCurrentTime();
+
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+
+		// 파일인 경우에만 처리
+		if (!finder.IsDirectory())
+		{
+			// 파일의 생성 시간 가져오기
+			CTime fileCreationTime;
+			finder.GetCreationTime(fileCreationTime);
+
+			// 현재 시간과의 차이 계산 (분 단위)
+			LONGLONG minutesDifference = (currentTime - fileCreationTime).GetTotalMinutes();
+
+			// 파일이 minFlag분 이전에 생성되었다면 삭제
+			if (minutesDifference > minFlag)
+			{
+				filePath = finder.GetFilePath();
+				CFile::Remove(filePath);
+			}
+		}
+	}
+
+	finder.Close();
 }
