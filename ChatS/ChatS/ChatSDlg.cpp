@@ -13,11 +13,15 @@
 #include <locale.h>
 
 #include "LogPeriod.h"
+#include "SettingIpPort.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+#define DEFAULT_LOG_PERIOD _T("60")
+#define DEFAULT_IP_ADDRESS _T("127.0.0.1")
+#define DEFAULT_PORT_NUMBER _T("1000")
 
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
@@ -85,6 +89,7 @@ BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_DISCONNECT_C, &CChatSDlg::OnBnClickedButtonDisconnectC)
 	ON_BN_CLICKED(IDC_BUTTON_SEND_C, &CChatSDlg::OnBnClickedButtonSendC)
 	ON_COMMAND(ID_MENU_LOG_PERIOD, &CChatSDlg::OnMenuLogPeriod)
+	ON_COMMAND(ID_MENU_SERVER_CLIENT, &CChatSDlg::OnMenuServerClient)
 END_MESSAGE_MAP()
 
 
@@ -126,17 +131,14 @@ BOOL CChatSDlg::OnInitDialog()
 
 	//Server
 	HandleListMsgS(_T("STATE: CLOSED"));
-	if (!m_strIpS.GetLength()) m_strIpS = _T("127.0.0.1");
-	if (!m_strPortS.GetLength()) m_strPortS = _T("1000");
-	if (!m_strLogPeriodS.GetLength()) m_strLogPeriodS = _T("30");
-	SetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
+	if (!m_strIpS.GetLength()) m_strIpS = DEFAULT_IP_ADDRESS;
+	if (!m_strPortS.GetLength()) m_strPortS = DEFAULT_PORT_NUMBER;
+	if (!m_strLogPeriodS.GetLength()) m_strLogPeriodS = DEFAULT_LOG_PERIOD;
 
 	//Client
-	if (!m_strIpC.GetLength()) m_strIpC = _T("127.0.0.1");
-	if (!m_strPortC.GetLength()) m_strPortC = _T("1000");
-	if (!m_strLogPeriodC.GetLength()) m_strLogPeriodC = _T("30");
-	SetDlgItemText(IDC_IPADDRESS_C, m_strIpC);
-	SetDlgItemText(IDC_EDIT_PORT_C, m_strPortC);
+	if (!m_strIpC.GetLength()) m_strIpC = DEFAULT_IP_ADDRESS;
+	if (!m_strPortC.GetLength()) m_strPortC = DEFAULT_PORT_NUMBER;
+	if (!m_strLogPeriodC.GetLength()) m_strLogPeriodC = DEFAULT_LOG_PERIOD;
 	m_TryCount = 0;
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
@@ -227,32 +229,29 @@ void CChatSDlg::ReadIniFile()
 	TCHAR inBuffer[100];
 
 	CString strSection = _T("SERVER_INFO");
-	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), _T("127.0.0.1"), inBuffer, 100, strIniFilePath);
+	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), DEFAULT_IP_ADDRESS, inBuffer, 100, strIniFilePath);
 	m_strIpS.Format(_T("%s"), inBuffer);
 
-	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strIniFilePath);
+	GetPrivateProfileString(strSection, _T("PORT"), DEFAULT_PORT_NUMBER, inBuffer, 100, strIniFilePath);
 	m_strPortS.Format(_T("%s"), inBuffer);
 
-	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), _T("30"), inBuffer, 100, strIniFilePath);
+	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), DEFAULT_LOG_PERIOD, inBuffer, 100, strIniFilePath);
 	m_strLogPeriodS.Format(_T("%s"), inBuffer);
 
 	strSection = _T("CLIENT_INFO");
-	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), _T("127.0.0.1"), inBuffer, 100, strIniFilePath);
+	GetPrivateProfileString(strSection, _T("IP_ADDRESS"), DEFAULT_IP_ADDRESS, inBuffer, 100, strIniFilePath);
 	m_strIpC.Format(_T("%s"), inBuffer);
 
-	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strIniFilePath);
+	GetPrivateProfileString(strSection, _T("PORT"), DEFAULT_PORT_NUMBER, inBuffer, 100, strIniFilePath);
 	m_strPortC.Format(_T("%s"), inBuffer);
 
-	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), _T("30"), inBuffer, 100, strIniFilePath);
+	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), DEFAULT_LOG_PERIOD, inBuffer, 100, strIniFilePath);
 	m_strLogPeriodC.Format(_T("%s"), inBuffer);
 }
 
 
 void CChatSDlg::OnBnClickedButtonOpenS()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	GetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
-
 	m_pListenSoc = new CListenSocket;	//Listen 소켓 생성
 	if (m_pListenSoc->Create(_ttoi(m_strPortS), SOCK_STREAM))	//TCP 소켓을 생성하고 포트에서 연결대기
 	{
@@ -343,11 +342,11 @@ void CChatSDlg::HandleDisconnectS(int flag)	//0: 출력없음, 1: 서버가 닫�
 void CChatSDlg::HandleEditFlagS(BOOL flag)
 {
 	GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
+
 	m_ButtonSendS.EnableWindow(flag);
 	m_ButtonCloseS.EnableWindow(flag);
-
 	m_ButtonOpenS.EnableWindow(!flag);
-	GetDlgItem(IDC_EDIT_PORT_S)->EnableWindow(!flag);
+
 }
 
 
@@ -365,9 +364,6 @@ void CChatSDlg::HandleListMsgS(CString msg, BOOL isLog)
 
 void CChatSDlg::OnBnClickedButtonConnectC()
 {
-	GetDlgItemText(IDC_IPADDRESS_C, m_strIpC);
-	GetDlgItemText(IDC_EDIT_PORT_C, m_strPortC);
-
 	if (m_ClientSoc.Create())
 	{
 		HandleConnectC();
@@ -461,8 +457,6 @@ void CChatSDlg::HandleEditFlagC(BOOL flag)
 	m_ButtonDisconnectC.EnableWindow(flag);
 
 	m_ButtonConnectC.EnableWindow(!flag);
-	GetDlgItem(IDC_IPADDRESS_C)->EnableWindow(!flag);
-	GetDlgItem(IDC_EDIT_PORT_C)->EnableWindow(!flag);
 }
 
 
@@ -554,10 +548,6 @@ void CChatSDlg::CreateLogFolder()
 }
 
 
-
-
-
-
 void CChatSDlg::DeleteOldFiles(CString folderPath, CString period)
 {
 	CFileFind finder;
@@ -606,5 +596,18 @@ void CChatSDlg::OnMenuLogPeriod()
 	{
 		m_strLogPeriodS = dlg.strServerPeriod;
 		m_strLogPeriodC = dlg.strClientPeriod;
+	}
+}
+
+
+void CChatSDlg::OnMenuServerClient()
+{
+	CSettingIpPort dlg;
+
+	if (dlg.DoModal() == IDOK)
+	{
+		m_strIpC = dlg.strIPC;
+		m_strPortC = dlg.strPortC;
+		m_strPortS = dlg.strPortS;
 	}
 }

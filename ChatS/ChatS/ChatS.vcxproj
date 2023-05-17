@@ -107,6 +107,7 @@
     <ClInclude Include="ListenSocket.h" />
     <ClInclude Include="LogPeriod.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SettingIpPort.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -117,6 +118,7 @@
     <ClCompile Include="ClientSocket.cpp" />
     <ClCompile Include="ListenSocket.cpp" />
     <ClCompile Include="LogPeriod.cpp" />
+    <ClCompile Include="SettingIpPort.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

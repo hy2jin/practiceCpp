@@ -102,4 +102,5 @@ public:
 
 public:
 	afx_msg void OnMenuLogPeriod();
+	afx_msg void OnMenuServerClient();
 };
