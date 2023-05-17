@@ -80,8 +80,6 @@ public:
 
 
 
-
-
 //CLIENT
 public:
 	CListBox m_ListC;
@@ -101,4 +99,7 @@ public:
 	CClientSocket m_ClientSoc;
 	UINT m_TryCount;
 	CString m_strIpC, m_strPortC;
+
+public:
+	afx_msg void OnMenuLogPeriod();
 };

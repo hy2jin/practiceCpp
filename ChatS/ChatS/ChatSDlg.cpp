@@ -12,6 +12,8 @@
 
 #include <locale.h>
 
+#include "LogPeriod.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -82,6 +84,7 @@ BEGIN_MESSAGE_MAP(CChatSDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_CONNECT_C, &CChatSDlg::OnBnClickedButtonConnectC)
 	ON_BN_CLICKED(IDC_BUTTON_DISCONNECT_C, &CChatSDlg::OnBnClickedButtonDisconnectC)
 	ON_BN_CLICKED(IDC_BUTTON_SEND_C, &CChatSDlg::OnBnClickedButtonSendC)
+	ON_COMMAND(ID_MENU_LOG_PERIOD, &CChatSDlg::OnMenuLogPeriod)
 END_MESSAGE_MAP()
 
 
@@ -125,13 +128,13 @@ BOOL CChatSDlg::OnInitDialog()
 	HandleListMsgS(_T("STATE: CLOSED"));
 	if (!m_strIpS.GetLength()) m_strIpS = _T("127.0.0.1");
 	if (!m_strPortS.GetLength()) m_strPortS = _T("1000");
-	if (!m_strLogPeriodS.GetLength()) m_strLogPeriodS = _T("5");
+	if (!m_strLogPeriodS.GetLength()) m_strLogPeriodS = _T("30");
 	SetDlgItemText(IDC_EDIT_PORT_S, m_strPortS);
 
 	//Client
 	if (!m_strIpC.GetLength()) m_strIpC = _T("127.0.0.1");
 	if (!m_strPortC.GetLength()) m_strPortC = _T("1000");
-	if (!m_strLogPeriodC.GetLength()) m_strLogPeriodC = _T("5");
+	if (!m_strLogPeriodC.GetLength()) m_strLogPeriodC = _T("30");
 	SetDlgItemText(IDC_IPADDRESS_C, m_strIpC);
 	SetDlgItemText(IDC_EDIT_PORT_C, m_strPortC);
 	m_TryCount = 0;
@@ -230,7 +233,7 @@ void CChatSDlg::ReadIniFile()
 	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strIniFilePath);
 	m_strPortS.Format(_T("%s"), inBuffer);
 
-	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), _T("5"), inBuffer, 100, strIniFilePath);
+	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), _T("30"), inBuffer, 100, strIniFilePath);
 	m_strLogPeriodS.Format(_T("%s"), inBuffer);
 
 	strSection = _T("CLIENT_INFO");
@@ -240,7 +243,7 @@ void CChatSDlg::ReadIniFile()
 	GetPrivateProfileString(strSection, _T("PORT"), _T("1000"), inBuffer, 100, strIniFilePath);
 	m_strPortC.Format(_T("%s"), inBuffer);
 
-	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), _T("5"), inBuffer, 100, strIniFilePath);
+	GetPrivateProfileString(strSection, _T("LOG_PERIOD"), _T("30"), inBuffer, 100, strIniFilePath);
 	m_strLogPeriodC.Format(_T("%s"), inBuffer);
 }
 
@@ -592,4 +595,16 @@ void CChatSDlg::DeleteOldFiles(CString folderPath, CString period)
 	}
 
 	finder.Close();
+}
+
+
+void CChatSDlg::OnMenuLogPeriod()
+{
+	CLogPeriod dlg;
+
+	if (dlg.DoModal() == IDOK)
+	{
+		m_strLogPeriodS = dlg.strServerPeriod;
+		m_strLogPeriodC = dlg.strClientPeriod;
+	}
 }
