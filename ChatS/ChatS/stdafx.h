@@ -21,8 +21,6 @@
 
 
 
-
-
 #ifndef _AFX_NO_OLE_SUPPORT
 #include <afxdtctl.h>           // Internet Explorer 4 공용 컨트롤에 대한 MFC 지원입니다.
 #endif
@@ -36,16 +34,16 @@
 #include <afxsock.h>            // MFC 소켓 확장
 
 
-CString HandleGetThisPath();
-CStringW HandleGetCurrentTime(BOOL isFileName = FALSE);
+CString thisPath, serverLogPath, clientLogPath;
 
-void HandleCreateLogFolder();
-void HandleGetLogFileName();
+CString GetThisPath();
+CString GetLogFileName();
+
+void CreateLogFolder();
 void LogMsg(CString msg, CString logFileName);
-CString serverLogFile, clientLogFile;
 void LogMsgServer(CString msg);
 void LogMsgClient(CString msg);
-
+void DeleteOldFiles(CString folderPath, UINT minFlag);
 
 
 #ifdef _UNICODE

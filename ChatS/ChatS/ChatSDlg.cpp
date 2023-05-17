@@ -115,8 +115,9 @@ BOOL CChatSDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
+	GetThisPath();
 	ReadIniFile();
-	HandleCreateLogFolder();
+	CreateLogFolder();
 
 	//SERVER
 	HandleListMsgS(_T("STATE: CLOSED"));
@@ -188,7 +189,7 @@ HCURSOR CChatSDlg::OnQueryDragIcon()
 void CChatSDlg::CreateIniFile()
 {
 
-	CString strFilePath = HandleGetThisPath() + _T("SETTINGFILE.ini");
+	CString strFilePath = GetThisPath() + _T("SETTINGFILE.ini");
 	
 	
 	CString strSection, strKey;
@@ -212,7 +213,7 @@ void CChatSDlg::CreateIniFile()
 
 void CChatSDlg::ReadIniFile()
 {
-	CString strFilePath = HandleGetThisPath() + _T("SETTINGFILE.ini");
+	CString strFilePath = GetThisPath() + _T("SETTINGFILE.ini");
 	TCHAR inBuffer[100];
 
 	CString strSection = _T("SERVER_INFO");
@@ -371,7 +372,7 @@ void CChatSDlg::HandleConnectC()
 	
 	if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
 	{	//성공
-		connectedMsg.Format(L"Try-%d : SUCCESS", ++m_TryCount);
+		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		HandleEditFlagC(TRUE);
@@ -379,14 +380,14 @@ void CChatSDlg::HandleConnectC()
 	}
 	else if (m_TryCount < 2)
 	{	//실패했지만 다시 시도
-		connectedMsg.Format(L"Try-%d : FAIL", ++m_TryCount);
+		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		HandleConnectC();
 	}
 	else
 	{	//마지막 시도 실패(3회차)
-		connectedMsg.Format(L"Try-%d : FAIL", ++m_TryCount);
+		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
 		HandleListMsgC(connectedMsg);
 
 		OnBnClickedButtonDisconnectC();

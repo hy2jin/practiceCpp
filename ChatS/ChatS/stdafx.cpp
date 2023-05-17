@@ -7,71 +7,67 @@
 #include "ChatSDlg.h"
 #include <locale.h>
 
-CString HandleGetThisPath()
+CString GetThisPath()
 {
-	CString strThisPath;
-	TCHAR szPath[1024];
-	GetModuleFileName(NULL, szPath, 1024);
+	if (!thisPath.GetLength())
+	{
+		TCHAR szPath[1024];
+		GetModuleFileName(NULL, szPath, 1024);
 
-	strThisPath.Format(_T("%s"), szPath);
-	strThisPath = strThisPath.Left(strThisPath.ReverseFind('\\') + 1);
-	return strThisPath;
+		thisPath.Format(_T("%s"), szPath);
+		thisPath = thisPath.Left(thisPath.ReverseFind('\\') + 1);
+	}
+
+	return thisPath;
 }
 
 
-void HandleCreateLogFolder()
+void CreateLogFolder()
 {
-	CString logFolderPath = HandleGetThisPath() + L"Log";
-	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
-	{
-		CreateDirectory(logFolderPath, NULL);
-	}
-	logFolderPath = HandleGetThisPath() + L"Log\\server";
-	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
-	{
-		CreateDirectory(logFolderPath, NULL);
-	}
-	logFolderPath = HandleGetThisPath() + L"Log\\client";
+	CString logFolderPath = thisPath + _T("Log");
 	if (GetFileAttributes((LPCTSTR)logFolderPath) == INVALID_FILE_ATTRIBUTES)
 	{
 		CreateDirectory(logFolderPath, NULL);
 	}
 
-	HandleGetLogFileName();
+	serverLogPath = thisPath + _T("Log\\server");
+	if (GetFileAttributes((LPCTSTR)serverLogPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		CreateDirectory(serverLogPath, NULL);
+	}
+
+	clientLogPath = thisPath + _T("Log\\client");
+	if (GetFileAttributes((LPCTSTR)clientLogPath) == INVALID_FILE_ATTRIBUTES)
+	{
+		CreateDirectory(clientLogPath, NULL);
+	}
 }
 
 
-CString HandleGetCurrentTime(BOOL isFileName)
+CString GetLogFileName()
+{
+	DeleteOldFiles(serverLogPath, 60);
+	DeleteOldFiles(clientLogPath, 60);
+
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+
+	CString logFileName;
+	logFileName.Format(_T("\\%04d%02d%02d-%02d%02d.log"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
+
+	return logFileName;
+}
+
+
+void LogMsg(CString msg, CString folderPath)
 {
 	SYSTEMTIME st;
 	GetLocalTime(&st);
 
-	CString currentTime;
-	if (isFileName) {
-		currentTime.Format(_T("%04d%02d%02d-%02d%02d"), st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute);
-	}
-	else {
-		currentTime.Format(_T("[%02d:%02d:%02d]"), st.wHour, st.wMinute, st.wSecond);
-	}
-
-	return currentTime;
-}
-
-
-void HandleGetLogFileName()
-{
-	SYSTEMTIME st;
-	GetLocalTime(&st);
-
-	serverLogFile.Format(L"%sLog\\server\\%s.log", HandleGetThisPath(), HandleGetCurrentTime(TRUE));
-	clientLogFile.Format(L"%sLog\\client\\%s.log", HandleGetThisPath(), HandleGetCurrentTime(TRUE));
-}
-
-
-void LogMsg(CString msg, CString logFileName)
-{
 	CString strData;
-	strData.Format(_T("%s %s \n"), HandleGetCurrentTime(), msg);
+	strData.Format(_T("[%02d:%02d:%02d] %s\n"), st.wHour, st.wMinute, st.wSecond, msg);
+
+	CString logFileName = folderPath + GetLogFileName();
 
 	FILE *file = NULL;
 	_wfopen_s(&file, logFileName, _T("r+"));
@@ -93,12 +89,54 @@ void LogMsg(CString msg, CString logFileName)
 }
 
 
+
+
 void LogMsgServer(CString msg)
 {
-	LogMsg(msg, serverLogFile);
+	LogMsg(msg, serverLogPath);
 }
+
 
 void LogMsgClient(CString msg)
 {
-	LogMsg(msg, clientLogFile);
+	LogMsg(msg, clientLogPath);
+}
+
+
+
+void DeleteOldFiles(CString logPath, UINT minFlag)
+{
+	CFileFind finder;
+	CString filePath;
+
+	// 폴더 내의 모든 파일 검색
+	BOOL bWorking = finder.FindFile(logPath + _T("\\*.*"));
+
+	// 현재 시간 가져오기
+	CTime currentTime = CTime::GetCurrentTime();
+
+	while (bWorking)
+	{
+		bWorking = finder.FindNextFile();
+
+		// 파일인 경우에만 처리
+		if (!finder.IsDirectory())
+		{
+			// 파일의 생성 시간 가져오기
+			CTime fileCreationTime;
+			finder.GetCreationTime(fileCreationTime);
+
+			// 현재 시간과의 차이 계산 (분 단위)
+			LONGLONG minutesDifference = (currentTime - fileCreationTime).GetTotalMinutes();
+
+			// 파일이 minFlag분 이전에 생성되었다면 삭제
+			if (minutesDifference > minFlag)
+			{
+				filePath = finder.GetFilePath();
+				CFile::Remove(filePath);
+			}
+		}
+	}
+
+	finder.Close();
 }
