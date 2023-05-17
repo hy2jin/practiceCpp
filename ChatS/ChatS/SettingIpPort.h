@@ -23,4 +23,8 @@ public:
 
 	CString strIPS, strPortS, strIPC, strPortC;
 	virtual BOOL OnInitDialog();
+	BOOL m_bServer;
+	BOOL m_bClient;
+	afx_msg void OnBnClickedCheckServerSetting();
+	afx_msg void OnBnClickedCheckClientSetting();
 };

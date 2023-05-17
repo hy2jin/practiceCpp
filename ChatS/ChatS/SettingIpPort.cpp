@@ -13,6 +13,8 @@ IMPLEMENT_DYNAMIC(CSettingIpPort, CDialog)
 
 CSettingIpPort::CSettingIpPort(CWnd* pParent /*=NULL*/)
 	: CDialog(CSettingIpPort::IDD, pParent)
+	, m_bServer(TRUE)
+	, m_bClient(TRUE)
 {
 
 }
@@ -24,11 +26,15 @@ CSettingIpPort::~CSettingIpPort()
 void CSettingIpPort::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+	DDX_Check(pDX, IDC_CHECK_SERVER_SETTING, m_bServer);
+	DDX_Check(pDX, IDC_CHECK_CLIENT_SETTING, m_bClient);
 }
 
 
 BEGIN_MESSAGE_MAP(CSettingIpPort, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_SAVE_SETTING, &CSettingIpPort::OnBnClickedButtonSaveSetting)
+	ON_BN_CLICKED(IDC_CHECK_SERVER_SETTING, &CSettingIpPort::OnBnClickedCheckServerSetting)
+	ON_BN_CLICKED(IDC_CHECK_CLIENT_SETTING, &CSettingIpPort::OnBnClickedCheckClientSetting)
 END_MESSAGE_MAP()
 
 
@@ -56,6 +62,20 @@ BOOL CSettingIpPort::OnInitDialog()
 	SetDlgItemText(IDC_EDIT_PORT_C, pMain->m_strPortC);
 	SetDlgItemText(IDC_EDIT_PORT_S, pMain->m_strPortS);
 
-	return FALSE;  // return TRUE unless you set the focus to a control
-	// 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
+	return TRUE;
+}
+
+
+void CSettingIpPort::OnBnClickedCheckServerSetting()
+{
+	UpdateData();
+	GetDlgItem(IDC_EDIT_PORT_S)->EnableWindow(m_bServer);
+}
+
+
+void CSettingIpPort::OnBnClickedCheckClientSetting()
+{
+	UpdateData();
+	GetDlgItem(IDC_EDIT_PORT_C)->EnableWindow(m_bClient);
+	GetDlgItem(IDC_IPADDRESS_C)->EnableWindow(m_bClient);
 }
