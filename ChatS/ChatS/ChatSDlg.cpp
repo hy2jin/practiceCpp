@@ -341,12 +341,22 @@ void CChatSDlg::HandleDisconnectS(int flag)	//0: 출력없음, 1: 서버가 닫�
 
 void CChatSDlg::HandleEditFlagS(BOOL flag)
 {
-	GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
+	if (m_isServerOn)
+	{
+		GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
 
-	m_ButtonSendS.EnableWindow(flag);
-	m_ButtonCloseS.EnableWindow(flag);
-	m_ButtonOpenS.EnableWindow(!flag);
+		m_ButtonSendS.EnableWindow(flag);
+		m_ButtonCloseS.EnableWindow(flag);
+		m_ButtonOpenS.EnableWindow(!flag);
+	}
+	else
+	{
+		GetDlgItem(IDC_EDIT_S)->EnableWindow(FALSE);
 
+		m_ButtonSendS.EnableWindow(FALSE);
+		m_ButtonCloseS.EnableWindow(FALSE);
+		m_ButtonOpenS.EnableWindow(FALSE);
+	}
 }
 
 
@@ -452,11 +462,20 @@ void CChatSDlg::HandleListMsgC(CString msg, BOOL isLog)
 
 void CChatSDlg::HandleEditFlagC(BOOL flag)
 {
-	GetDlgItem(IDC_EDIT_C)->EnableWindow(flag);
-	m_ButtonSendC.EnableWindow(flag);
-	m_ButtonDisconnectC.EnableWindow(flag);
-
-	m_ButtonConnectC.EnableWindow(!flag);
+	if (m_isClientOn)
+	{
+		GetDlgItem(IDC_EDIT_C)->EnableWindow(flag);
+		m_ButtonSendC.EnableWindow(flag);
+		m_ButtonDisconnectC.EnableWindow(flag);
+		m_ButtonConnectC.EnableWindow(!flag);
+	}
+	else
+	{
+		GetDlgItem(IDC_EDIT_C)->EnableWindow(FALSE);
+		m_ButtonSendC.EnableWindow(FALSE);
+		m_ButtonDisconnectC.EnableWindow(FALSE);
+		m_ButtonConnectC.EnableWindow(FALSE);
+	}
 }
 
 
@@ -609,5 +628,12 @@ void CChatSDlg::OnMenuServerClient()
 		m_strIpC = dlg.strIPC;
 		m_strPortC = dlg.strPortC;
 		m_strPortS = dlg.strPortS;
+
+		m_isClientOn = dlg.m_bClient;
+		m_isServerOn = dlg.m_bServer;
+
+		HandleEditFlagC(m_isClientOn);
+		HandleEditFlagS(m_isServerOn);
+
 	}
 }

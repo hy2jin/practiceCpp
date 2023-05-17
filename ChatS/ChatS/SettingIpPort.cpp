@@ -62,6 +62,12 @@ BOOL CSettingIpPort::OnInitDialog()
 	SetDlgItemText(IDC_EDIT_PORT_C, pMain->m_strPortC);
 	SetDlgItemText(IDC_EDIT_PORT_S, pMain->m_strPortS);
 
+	CheckDlgButton(IDC_CHECK_CLIENT_SETTING, pMain->m_isClientOn);
+	CheckDlgButton(IDC_CHECK_SERVER_SETTING, pMain->m_isServerOn);
+
+	OnBnClickedCheckClientSetting();
+	OnBnClickedCheckServerSetting();
+
 	return TRUE;
 }
 

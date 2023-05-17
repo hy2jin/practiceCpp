@@ -103,4 +103,8 @@ public:
 public:
 	afx_msg void OnMenuLogPeriod();
 	afx_msg void OnMenuServerClient();
+
+	BOOL m_isServerOn, m_isClientOn;
 };
+
+extern BOOL m_isServerOn, m_isClientOn;
