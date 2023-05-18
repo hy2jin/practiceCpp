@@ -23,6 +23,8 @@
 #define DEFAULT_IP_ADDRESS _T("127.0.0.1")
 #define DEFAULT_PORT_NUMBER _T("1000")
 
+#define PROJECT_ON_MESSAGE _T("Project ON")
+
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
 class CAboutDlg : public CDialogEx
@@ -130,12 +132,13 @@ BOOL CChatSDlg::OnInitDialog()
 	CreateLogFolder();
 
 	//Server
-	HandleListMsgS(_T("STATE: CLOSED"));
+	HandleListMsgS(PROJECT_ON_MESSAGE);
 	if (!m_strIpS.GetLength()) m_strIpS = DEFAULT_IP_ADDRESS;
 	if (!m_strPortS.GetLength()) m_strPortS = DEFAULT_PORT_NUMBER;
 	if (!m_strLogPeriodS.GetLength()) m_strLogPeriodS = DEFAULT_LOG_PERIOD;
 
 	//Client
+	HandleListMsgC(PROJECT_ON_MESSAGE);
 	if (!m_strIpC.GetLength()) m_strIpC = DEFAULT_IP_ADDRESS;
 	if (!m_strPortC.GetLength()) m_strPortC = DEFAULT_PORT_NUMBER;
 	if (!m_strLogPeriodC.GetLength()) m_strLogPeriodC = DEFAULT_LOG_PERIOD;
@@ -258,6 +261,7 @@ void CChatSDlg::OnBnClickedButtonOpenS()
 		if (m_pListenSoc->Listen())
 		{
 			HandleEditFlagS(TRUE);
+			m_isWaitting = TRUE;
 
 			CString temp;
 			temp.Format(_T("STATE: OPEN (%s/%s)"), m_strIpS, m_strPortS);
@@ -306,6 +310,7 @@ void CChatSDlg::OnBnClickedButtonSendS()
 
 void CChatSDlg::HandleDisconnectS(int flag)	//0: 출력없음, 1: 서버가 닫음, 2: 클라이언트가 닫음
 {
+	m_isWaitting = FALSE;
 	CString msg = _T("CLOSED BY SERVER");
 
 	POSITION pos;
@@ -341,12 +346,22 @@ void CChatSDlg::HandleDisconnectS(int flag)	//0: 출력없음, 1: 서버가 닫�
 
 void CChatSDlg::HandleEditFlagS(BOOL flag)
 {
-	GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
+	if (m_isServerOn)
+	{
+		GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
 
-	m_ButtonSendS.EnableWindow(flag);
-	m_ButtonCloseS.EnableWindow(flag);
-	m_ButtonOpenS.EnableWindow(!flag);
+		m_ButtonSendS.EnableWindow(flag);
+		m_ButtonCloseS.EnableWindow(flag);
+		m_ButtonOpenS.EnableWindow(!flag);
+	}
+	else
+	{
+		GetDlgItem(IDC_EDIT_S)->EnableWindow(FALSE);
 
+		m_ButtonSendS.EnableWindow(FALSE);
+		m_ButtonCloseS.EnableWindow(FALSE);
+		m_ButtonOpenS.EnableWindow(FALSE);
+	}
 }
 
 
@@ -452,11 +467,20 @@ void CChatSDlg::HandleListMsgC(CString msg, BOOL isLog)
 
 void CChatSDlg::HandleEditFlagC(BOOL flag)
 {
-	GetDlgItem(IDC_EDIT_C)->EnableWindow(flag);
-	m_ButtonSendC.EnableWindow(flag);
-	m_ButtonDisconnectC.EnableWindow(flag);
-
-	m_ButtonConnectC.EnableWindow(!flag);
+	if (m_isClientOn)
+	{
+		GetDlgItem(IDC_EDIT_C)->EnableWindow(flag);
+		m_ButtonSendC.EnableWindow(flag);
+		m_ButtonDisconnectC.EnableWindow(flag);
+		m_ButtonConnectC.EnableWindow(!flag);
+	}
+	else
+	{
+		GetDlgItem(IDC_EDIT_C)->EnableWindow(FALSE);
+		m_ButtonSendC.EnableWindow(FALSE);
+		m_ButtonDisconnectC.EnableWindow(FALSE);
+		m_ButtonConnectC.EnableWindow(FALSE);
+	}
 }
 
 
@@ -609,5 +633,46 @@ void CChatSDlg::OnMenuServerClient()
 		m_strIpC = dlg.strIPC;
 		m_strPortC = dlg.strPortC;
 		m_strPortS = dlg.strPortS;
+
+		if (m_isClientOn != dlg.m_bClient)
+		{
+			if (dlg.m_bClient)	//on
+			{
+				m_ListC.ResetContent();
+				HandleListMsgC(PROJECT_ON_MESSAGE);
+			}
+			else  //off
+			{
+				LogMsgClient(_T("설정 변경됨 : OFF"));
+				m_ListC.ResetContent();
+				HandleListMsgC(_T("클라이언트 사용 안함"), FALSE);
+				HandleDisconnectC();
+			}
+			m_isClientOn = dlg.m_bClient;
+			HandleEditFlagC(!m_isClientOn);
+		}
+
+		if (m_isServerOn != dlg.m_bServer)
+		{
+			if (dlg.m_bServer)	//on
+			{
+				m_ListS.ResetContent();
+				HandleListMsgS(PROJECT_ON_MESSAGE);
+			}
+			else  //off
+			{
+				LogMsgServer(_T("설정 변경됨 : OFF"));
+				m_ListS.ResetContent();
+				HandleListMsgS(_T("서버 사용 안함"), FALSE);
+				if (m_isWaitting)
+				{
+					HandleDisconnectS(0);
+				}
+			}
+			m_isServerOn = dlg.m_bServer;
+			HandleEditFlagS(!m_isServerOn);
+
+		}
+
 	}
 }
