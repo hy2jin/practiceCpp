@@ -144,7 +144,9 @@ BOOL CChatSDlg::OnInitDialog()
 	if (!m_strLogPeriodC.GetLength()) m_strLogPeriodC = DEFAULT_LOG_PERIOD;
 	m_TryCount = 0;
 
+
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
+
 }
 
 void CChatSDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -188,6 +190,7 @@ void CChatSDlg::OnPaint()
 	{
 		CDialogEx::OnPaint();
 	}
+
 }
 
 // 사용자가 최소화된 창을 끄는 동안에 커서가 표시되도록 시스템에서
@@ -344,23 +347,21 @@ void CChatSDlg::HandleDisconnectS(int flag)	//0: 출력없음, 1: 서버가 닫�
 }
 
 
-void CChatSDlg::HandleEditFlagS(BOOL flag)
+void CChatSDlg::HandleEditFlagS(BOOL flag, BOOL all)
 {
-	if (m_isServerOn)
+	if (all)
 	{
 		GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
-
 		m_ButtonSendS.EnableWindow(flag);
 		m_ButtonCloseS.EnableWindow(flag);
-		m_ButtonOpenS.EnableWindow(!flag);
+		m_ButtonOpenS.EnableWindow(flag);
 	}
 	else
 	{
-		GetDlgItem(IDC_EDIT_S)->EnableWindow(FALSE);
-
-		m_ButtonSendS.EnableWindow(FALSE);
-		m_ButtonCloseS.EnableWindow(FALSE);
-		m_ButtonOpenS.EnableWindow(FALSE);
+		GetDlgItem(IDC_EDIT_S)->EnableWindow(flag);
+		m_ButtonSendS.EnableWindow(flag);
+		m_ButtonCloseS.EnableWindow(flag);
+		m_ButtonOpenS.EnableWindow(!flag);
 	}
 }
 
@@ -465,21 +466,21 @@ void CChatSDlg::HandleListMsgC(CString msg, BOOL isLog)
 }
 
 
-void CChatSDlg::HandleEditFlagC(BOOL flag)
+void CChatSDlg::HandleEditFlagC(BOOL flag, BOOL all)
 {
-	if (m_isClientOn)
+	if (all)
+	{
+		GetDlgItem(IDC_EDIT_C)->EnableWindow(flag);
+		m_ButtonSendC.EnableWindow(flag);
+		m_ButtonDisconnectC.EnableWindow(flag);
+		m_ButtonConnectC.EnableWindow(flag);
+	}
+	else
 	{
 		GetDlgItem(IDC_EDIT_C)->EnableWindow(flag);
 		m_ButtonSendC.EnableWindow(flag);
 		m_ButtonDisconnectC.EnableWindow(flag);
 		m_ButtonConnectC.EnableWindow(!flag);
-	}
-	else
-	{
-		GetDlgItem(IDC_EDIT_C)->EnableWindow(FALSE);
-		m_ButtonSendC.EnableWindow(FALSE);
-		m_ButtonDisconnectC.EnableWindow(FALSE);
-		m_ButtonConnectC.EnableWindow(FALSE);
 	}
 }
 
@@ -626,6 +627,18 @@ void CChatSDlg::OnMenuLogPeriod()
 
 void CChatSDlg::OnMenuServerClient()
 {
+	
+	if (GetDlgItem(IDC_EDIT_S)->IsWindowEnabled())
+	{
+		AfxMessageBox(_T("서버를 끄고 설정을 변경하세요"));
+		return;
+	}
+	if (GetDlgItem(IDC_EDIT_C)->IsWindowEnabled())
+	{
+		AfxMessageBox(_T("클라이언트 연결을 끊고 설정을 변경하세요"));
+		return;
+	}
+
 	CSettingIpPort dlg;
 
 	if (dlg.DoModal() == IDOK)
@@ -633,46 +646,56 @@ void CChatSDlg::OnMenuServerClient()
 		m_strIpC = dlg.strIPC;
 		m_strPortC = dlg.strPortC;
 		m_strPortS = dlg.strPortS;
-
-		if (m_isClientOn != dlg.m_bClient)
-		{
-			if (dlg.m_bClient)	//on
-			{
+		
+		if (m_isClientBlock) {
+			if (dlg.m_bClient){
+				//막혀있다가 풀려남 -> 버튼 누를 수 있게
 				m_ListC.ResetContent();
 				HandleListMsgC(PROJECT_ON_MESSAGE);
+				HandleEditFlagC(FALSE);
 			}
-			else  //off
-			{
+			else{
+				//막혀있다가 그대로 -> 그대로
+			}
+		}
+		else {
+			if (dlg.m_bClient) {
+				//풀려있다 풀려남 -> 그대로
+			}
+			else {
+				//풀려있다 막힘 -> 아무것도 못하게
 				LogMsgClient(_T("설정 변경됨 : OFF"));
 				m_ListC.ResetContent();
 				HandleListMsgC(_T("클라이언트 사용 안함"), FALSE);
-				HandleDisconnectC();
+				HandleEditFlagC(FALSE, TRUE);
 			}
-			m_isClientOn = dlg.m_bClient;
-			HandleEditFlagC(!m_isClientOn);
 		}
+		m_isClientBlock = !dlg.m_bClient;
 
-		if (m_isServerOn != dlg.m_bServer)
-		{
-			if (dlg.m_bServer)	//on
-			{
+
+		if (m_isServerBlock) {
+			if (dlg.m_bServer){
+				//막혀있다가 풀려남 -> 버튼 누를 수 있게
 				m_ListS.ResetContent();
 				HandleListMsgS(PROJECT_ON_MESSAGE);
+				HandleEditFlagS(FALSE);
 			}
-			else  //off
-			{
+			else{
+				//막혀있다가 그대로 -> 그대로
+			}
+		}
+		else {
+			if (dlg.m_bServer) {
+				//풀려있다 풀려남 -> 그대로
+			}
+			else {
+				//풀려있다 막힘 -> 아무것도 못하게
 				LogMsgServer(_T("설정 변경됨 : OFF"));
 				m_ListS.ResetContent();
 				HandleListMsgS(_T("서버 사용 안함"), FALSE);
-				if (m_isWaitting)
-				{
-					HandleDisconnectS(0);
-				}
+				HandleEditFlagS(FALSE, TRUE);
 			}
-			m_isServerOn = dlg.m_bServer;
-			HandleEditFlagS(!m_isServerOn);
-
 		}
-
+		m_isServerBlock = !dlg.m_bServer;
 	}
 }
