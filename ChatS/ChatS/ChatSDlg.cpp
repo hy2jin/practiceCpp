@@ -23,6 +23,8 @@
 #define DEFAULT_IP_ADDRESS _T("127.0.0.1")
 #define DEFAULT_PORT_NUMBER _T("1000")
 
+#define PROJECT_ON_MESSAGE _T("Project ON")
+
 // 응용 프로그램 정보에 사용되는 CAboutDlg 대화 상자입니다.
 
 class CAboutDlg : public CDialogEx
@@ -130,12 +132,13 @@ BOOL CChatSDlg::OnInitDialog()
 	CreateLogFolder();
 
 	//Server
-	HandleListMsgS(_T("STATE: CLOSED"));
+	HandleListMsgS(PROJECT_ON_MESSAGE);
 	if (!m_strIpS.GetLength()) m_strIpS = DEFAULT_IP_ADDRESS;
 	if (!m_strPortS.GetLength()) m_strPortS = DEFAULT_PORT_NUMBER;
 	if (!m_strLogPeriodS.GetLength()) m_strLogPeriodS = DEFAULT_LOG_PERIOD;
 
 	//Client
+	HandleListMsgC(PROJECT_ON_MESSAGE);
 	if (!m_strIpC.GetLength()) m_strIpC = DEFAULT_IP_ADDRESS;
 	if (!m_strPortC.GetLength()) m_strPortC = DEFAULT_PORT_NUMBER;
 	if (!m_strLogPeriodC.GetLength()) m_strLogPeriodC = DEFAULT_LOG_PERIOD;
@@ -633,20 +636,42 @@ void CChatSDlg::OnMenuServerClient()
 
 		if (m_isClientOn != dlg.m_bClient)
 		{
-			HandleDisconnectC();
+			if (dlg.m_bClient)	//on
+			{
+				m_ListC.ResetContent();
+				HandleListMsgC(PROJECT_ON_MESSAGE);
+			}
+			else  //off
+			{
+				LogMsgClient(_T("설정 변경됨 : OFF"));
+				m_ListC.ResetContent();
+				HandleListMsgC(_T("클라이언트 사용 안함"), FALSE);
+				HandleDisconnectC();
+			}
 			m_isClientOn = dlg.m_bClient;
 			HandleEditFlagC(!m_isClientOn);
 		}
 
 		if (m_isServerOn != dlg.m_bServer)
 		{
+			if (dlg.m_bServer)	//on
+			{
+				m_ListS.ResetContent();
+				HandleListMsgS(PROJECT_ON_MESSAGE);
+			}
+			else  //off
+			{
+				LogMsgServer(_T("설정 변경됨 : OFF"));
+				m_ListS.ResetContent();
+				HandleListMsgS(_T("서버 사용 안함"), FALSE);
+				if (m_isWaitting)
+				{
+					HandleDisconnectS(0);
+				}
+			}
 			m_isServerOn = dlg.m_bServer;
 			HandleEditFlagS(!m_isServerOn);
 
-			if (m_isWaitting)
-			{
-				HandleDisconnectS(1);
-			}
 		}
 
 	}
