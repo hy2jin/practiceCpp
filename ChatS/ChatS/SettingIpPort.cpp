@@ -6,8 +6,6 @@
 #include "SettingIpPort.h"
 #include "afxdialogex.h"
 
-#define PROJECT_ON_MESSAGE _T("Project ON")
-
 // CSettingIpPort 대화 상자입니다.
 
 IMPLEMENT_DYNAMIC(CSettingIpPort, CDialog)
