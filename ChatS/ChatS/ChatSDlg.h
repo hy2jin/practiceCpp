@@ -10,6 +10,8 @@
 #include "ChildSocket.h"
 #include "ClientSocket.h"
 
+#include "SettingIpPort.h"
+
 // CChatSDlg 대화 상자
 class CChatSDlg : public CDialogEx
 {
@@ -71,7 +73,7 @@ public:
 	afx_msg void OnBnClickedButtonSendS();
 
 	void HandleListMsgS(CString msg, BOOL isLog = TRUE);
-	void HandleEditFlagS(BOOL flag);
+	void HandleEditFlagS(BOOL flag, BOOL all = FALSE);
 	void HandleDisconnectS(int flag);
 
 	BOOL m_isWaitting = FALSE;
@@ -93,7 +95,7 @@ public:
 	afx_msg void OnBnClickedButtonSendC();
 
 	void HandleListMsgC(CString msg, BOOL isLog = TRUE);
-	void HandleEditFlagC(BOOL flag);
+	void HandleEditFlagC(BOOL flag, BOOL all = FALSE);
 	void HandleConnectC();
 	void HandleDisconnectC();
 
@@ -105,8 +107,9 @@ public:
 	afx_msg void OnMenuLogPeriod();
 	afx_msg void OnMenuServerClient();
 
-	BOOL m_isServerOn = TRUE;
-	BOOL m_isClientOn = TRUE;
+	BOOL m_isServerBlock = FALSE;
+	BOOL m_isClientBlock = FALSE;
+
 };
 
-extern BOOL m_isServerOn, m_isClientOn;
+extern BOOL m_isServerBlock, m_isClientBlock;

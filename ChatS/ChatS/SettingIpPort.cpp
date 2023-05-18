@@ -6,6 +6,7 @@
 #include "SettingIpPort.h"
 #include "afxdialogex.h"
 
+#define PROJECT_ON_MESSAGE _T("Project ON")
 
 // CSettingIpPort 대화 상자입니다.
 
@@ -62,11 +63,11 @@ BOOL CSettingIpPort::OnInitDialog()
 	SetDlgItemText(IDC_EDIT_PORT_C, pMain->m_strPortC);
 	SetDlgItemText(IDC_EDIT_PORT_S, pMain->m_strPortS);
 
-	CheckDlgButton(IDC_CHECK_CLIENT_SETTING, pMain->m_isClientOn);
-	CheckDlgButton(IDC_CHECK_SERVER_SETTING, pMain->m_isServerOn);
+	CheckDlgButton(IDC_CHECK_CLIENT_SETTING, !pMain->m_isClientBlock);
+	CheckDlgButton(IDC_CHECK_SERVER_SETTING, !pMain->m_isServerBlock);
 
-	OnBnClickedCheckClientSetting();
 	OnBnClickedCheckServerSetting();
+	OnBnClickedCheckClientSetting();
 
 	return TRUE;
 }
