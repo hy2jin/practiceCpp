@@ -258,6 +258,7 @@ void CChatSDlg::OnBnClickedButtonOpenS()
 		if (m_pListenSoc->Listen())
 		{
 			HandleEditFlagS(TRUE);
+			m_isWaitting = TRUE;
 
 			CString temp;
 			temp.Format(_T("STATE: OPEN (%s/%s)"), m_strIpS, m_strPortS);
@@ -306,6 +307,7 @@ void CChatSDlg::OnBnClickedButtonSendS()
 
 void CChatSDlg::HandleDisconnectS(int flag)	//0: 출력없음, 1: 서버가 닫음, 2: 클라이언트가 닫음
 {
+	m_isWaitting = FALSE;
 	CString msg = _T("CLOSED BY SERVER");
 
 	POSITION pos;
@@ -629,11 +631,23 @@ void CChatSDlg::OnMenuServerClient()
 		m_strPortC = dlg.strPortC;
 		m_strPortS = dlg.strPortS;
 
-		m_isClientOn = dlg.m_bClient;
-		m_isServerOn = dlg.m_bServer;
+		if (m_isClientOn != dlg.m_bClient)
+		{
+			HandleDisconnectC();
+			m_isClientOn = dlg.m_bClient;
+			HandleEditFlagC(!m_isClientOn);
+		}
 
-		HandleEditFlagC(m_isClientOn);
-		HandleEditFlagS(m_isServerOn);
+		if (m_isServerOn != dlg.m_bServer)
+		{
+			m_isServerOn = dlg.m_bServer;
+			HandleEditFlagS(!m_isServerOn);
+
+			if (m_isWaitting)
+			{
+				HandleDisconnectS(1);
+			}
+		}
 
 	}
 }

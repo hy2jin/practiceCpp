@@ -74,6 +74,7 @@ public:
 	void HandleEditFlagS(BOOL flag);
 	void HandleDisconnectS(int flag);
 
+	BOOL m_isWaitting = FALSE;
 	CListenSocket* m_pListenSoc;		//클라이언트의 접속을 위해 대기하는 서버소켓
 	CString m_strIpS;
 	CString m_strPortS;
@@ -104,7 +105,8 @@ public:
 	afx_msg void OnMenuLogPeriod();
 	afx_msg void OnMenuServerClient();
 
-	BOOL m_isServerOn, m_isClientOn;
+	BOOL m_isServerOn = TRUE;
+	BOOL m_isClientOn = TRUE;
 };
 
 extern BOOL m_isServerOn, m_isClientOn;
