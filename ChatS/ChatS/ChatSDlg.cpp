@@ -382,7 +382,33 @@ void CChatSDlg::OnBnClickedButtonConnectC()
 {
 	if (m_ClientSoc.Create())
 	{
-		HandleConnectC();
+		CString connectedMsg;
+
+		while (m_TryCount < 3)
+		{
+			if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
+			{	//성공
+				connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
+				HandleListMsgC(connectedMsg);
+
+				HandleEditFlagC(TRUE);
+				m_TryCount = 0;
+
+				break;
+			}
+			else
+			{	//실패했음 알리고 재시도
+				connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
+				HandleListMsgC(connectedMsg);
+			}
+		}
+
+		if (m_TryCount > 0)
+		{	//진짜 실패
+			HandleListMsgC(_T("다시 연결하세요"));
+			m_ClientSoc.ShutDown();
+			m_ClientSoc.Close();
+		}
 	}
 	else
 	{
