@@ -395,27 +395,30 @@ void CChatSDlg::HandleConnectC()
 {
 	CString connectedMsg;
 	
-	if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
-	{	//성공
-		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
-		HandleListMsgC(connectedMsg);
+	while (m_TryCount < 3)
+	{
+		if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
+		{	//성공
+			connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
+			HandleListMsgC(connectedMsg);
 
-		HandleEditFlagC(TRUE);
-		m_TryCount = 0;
+			HandleEditFlagC(TRUE);
+			m_TryCount = 0;
+
+			break;
+		}
+		else
+		{	//실패했음 알리고 재시도
+			connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
+			HandleListMsgC(connectedMsg);
+		}
 	}
-	else if (m_TryCount < 2)
-	{	//실패했지만 다시 시도
-		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
-		HandleListMsgC(connectedMsg);
 
-		HandleConnectC();
-	}
-	else
-	{	//마지막 시도 실패(3회차)
-		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
-		HandleListMsgC(connectedMsg);
-
-		OnBnClickedButtonDisconnectC();
+	if (m_TryCount > 0)
+	{	//진짜 실패
+		HandleListMsgC(_T("다시 연결하세요"));
+		m_ClientSoc.ShutDown();
+		m_ClientSoc.Close();
 	}
 }
 
