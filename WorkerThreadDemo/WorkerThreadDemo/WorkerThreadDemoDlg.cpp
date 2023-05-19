@@ -49,6 +49,7 @@ END_MESSAGE_MAP()
 
 CWorkerThreadDemoDlg::CWorkerThreadDemoDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CWorkerThreadDemoDlg::IDD, pParent)
+	, m_bExitFlag(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -63,6 +64,7 @@ BEGIN_MESSAGE_MAP(CWorkerThreadDemoDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_RUNNOTEPAD, &CWorkerThreadDemoDlg::OnBnClickedButtonRunnotepad)
+	ON_BN_CLICKED(IDC_BUTTON_STOPTICK, &CWorkerThreadDemoDlg::OnBnClickedButtonStoptick)
 END_MESSAGE_MAP()
 
 
@@ -98,6 +100,7 @@ BOOL CWorkerThreadDemoDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+	g_pThread = ::AfxBeginThread(ThreadFunc, this);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -149,6 +152,56 @@ void CWorkerThreadDemoDlg::OnPaint()
 HCURSOR CWorkerThreadDemoDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
+}
+
+UINT CWorkerThreadDemoDlg::ThreadFunc(LPVOID lParam)
+{
+	// static 함수라서 직접 클래스 내부의 데이터에 접근할 수 없다.
+	// 따라서 다이얼로그를 인자로 받아서 사용한다.
+	CWorkerThreadDemoDlg* pDlg = (CWorkerThreadDemoDlg*)lParam;
+
+	while (!pDlg->m_bExitFlag)
+	{
+		TRACE(_T("Tick\n"));
+		Wait(1000);
+	}
+
+	return 0;
+}
+
+// Sleep 대신에 쓰는 함수
+// MFC에서 Sleep을 사용하면 모든 메시지가 해당 밀리세컨드 동안 멈춘다.
+// 따라서 이 /함수로 해당 구역만 멈추게 한다.
+void CWorkerThreadDemoDlg::Wait(ULONGLONG dwMillisecond)
+{
+	MSG message;
+	ULONGLONG ullStart = GetTickCount64();
+
+	while (GetTickCount64() - ullStart < dwMillisecond)
+	{
+		while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&message);
+			DispatchMessage(&message);
+		}
+	}
+}
+
+
+void CWorkerThreadDemoDlg::ExitThread()
+{
+	if (g_pThread != NULL)
+	{
+		m_bExitFlag = TRUE;
+		DWORD dwResult = ::WaitForSingleObject(g_pThread->m_hThread, INFINITE);
+
+		if (dwResult == WAIT_FAILED)
+			TRACE(_T("Thread Exit Failed\n"));
+		else if (dwResult == WAIT_OBJECT_0)
+			TRACE(_T("Thread Exit\n"));
+
+		g_pThread = NULL;
+	}
 }
 
 
@@ -204,4 +257,10 @@ void CWorkerThreadDemoDlg::OnBnClickedButtonRunnotepad()
 	{
 		AfxMessageBox(_T("ERROR: Failed to begin worker-thread!"));
 	}
+}
+
+
+void CWorkerThreadDemoDlg::OnBnClickedButtonStoptick()
+{
+	ExitThread();
 }

@@ -31,4 +31,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonRunnotepad();
+
+public:
+	bool m_bExitFlag;	// 스레드 종료를 위한
+	static UINT ThreadFunc(LPVOID lParam);	// 스레드에 이용할 함수
+	static void Wait(ULONGLONG dwMillisecond);	// Sleep대신에 사용할 함수
+
+	void ExitThread();	// 스레드를 종료하도록 유도하는 함수
+	afx_msg void OnBnClickedButtonStoptick();
 };
