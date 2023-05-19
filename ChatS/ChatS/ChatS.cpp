@@ -94,3 +94,13 @@ BOOL CChatSApp::InitInstance()
 	return FALSE;
 }
 
+
+
+int CChatSApp::ExitInstance()
+{
+	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+	g_ExitEvent.SetEvent();
+	::Sleep(100);
+
+	return CWinApp::ExitInstance();
+}

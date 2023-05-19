@@ -67,6 +67,7 @@ void CListenSocket::BroadCast(char* pszBuffer, int len)
 	{
 		pChild = (CChildSocket*)m_ptrChildSocketList.GetNext(pos);
 
-		if (pChild != NULL) pChild->Send(pszBuffer, len*2);
+		if (pChild != NULL)
+			pChild->Send(pszBuffer, len*2);
 	}
 }

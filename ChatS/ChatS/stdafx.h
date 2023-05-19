@@ -34,7 +34,7 @@
 #include <afxsock.h>            // MFC 소켓 확장
 
 
-
+extern CEvent g_ExitEvent;
 
 #ifdef _UNICODE
 #if defined _M_IX86

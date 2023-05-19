@@ -206,66 +206,84 @@ UINT CChatSDlg::ThreadFunc(LPVOID lParam)
 {
 	CChatSDlg* pDlg = (CChatSDlg*)lParam;
 
-	CString connectedMsg;
-
-	while (pDlg->m_TryCount < 3)
+	if (pDlg->m_ClientSoc.Create())
 	{
-		if (pDlg->m_ClientSoc.Connect(pDlg->m_strIpC, _ttoi(pDlg->m_strPortC)))
+		CString connectedMsg;
+				
+		while (pDlg->m_TryCount < 3)
 		{
-			connectedMsg.Format(_T("Try-%d : SUCCESS"), ++pDlg->m_TryCount);
-			pDlg->HandleListMsgC(connectedMsg);
+			if (pDlg->m_ClientSoc.Connect(pDlg->m_strIpC, _ttoi(pDlg->m_strPortC)))
+			{
+				connectedMsg.Format(_T("Try-%d : SUCCESS"), ++pDlg->m_TryCount);
+				pDlg->HandleListMsgC(connectedMsg);
 
-			pDlg->HandleEditFlagC(TRUE);
-			pDlg->m_TryCount = 0;
+				pDlg->HandleEditFlagC(TRUE);
+				pDlg->m_TryCount = 0;
 
-			return 0;
+				break;
+			}
+			else
+			{
+				connectedMsg.Format(_T("Try-%d : FAIL"), ++pDlg->m_TryCount);
+				pDlg->HandleListMsgC(connectedMsg);
+			}
+
+			Wait(1000);
 		}
 
-		connectedMsg.Format(_T("Try-%d : FAIL"), ++pDlg->m_TryCount);
-		pDlg->HandleListMsgC(connectedMsg);
+		if (pDlg->m_TryCount > 0)
+		{
+			pDlg->HandleListMsgC(_T("Fail Connect"));
+			pDlg->m_ClientSoc.ShutDown();
+			pDlg->m_ClientSoc.Close();
+		}
 
 	}
-
-	pDlg->OnBnClickedButtonDisconnectC();
-	pDlg->ExitThread();
+	else
+	{
+		pDlg->HandleListMsgC(_T("Fail Create Socket"));
+		pDlg->ExitThread();
+	}
 
 	return 0;
 
-	//if (pDlg->m_ClientSoc.Connect(pDlg->m_strIpC, _ttoi(pDlg->m_strPortC)))
-	//{	//성공
-	//	connectedMsg.Format(_T("Try-%d : SUCCESS"), ++pDlg->m_TryCount);
-	//	pDlg->HandleListMsgC(connectedMsg);
-
-	//	pDlg->HandleEditFlagC(TRUE);
-	//	pDlg->m_TryCount = 0;
-	//}
-	//else if (pDlg->m_TryCount < 2)
-	//{	//실패했지만 다시 시도
-	//	connectedMsg.Format(_T("Try-%d : FAIL"), ++pDlg->m_TryCount);
-	//	pDlg->HandleListMsgC(connectedMsg);
-
-	//	pDlg->HandleConnectC();
-	//}
-	//else
-	//{	//마지막 시도 실패(3회차)
-	//	connectedMsg.Format(_T("Try-%d : FAIL"), ++pDlg->m_TryCount);
-	//	pDlg->HandleListMsgC(connectedMsg);
-
-	//	pDlg->OnBnClickedButtonDisconnectC();
-	//}
 }
+
+
+void CChatSDlg::Wait(ULONGLONG dwMillisecond)
+{
+	MSG message;
+	ULONGLONG ullStart = GetTickCount64();
+
+	while (GetTickCount64() - ullStart < dwMillisecond)
+	{
+		while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&message);
+			DispatchMessage(&message);
+		}
+	}
+}
+
 
 void CChatSDlg::ExitThread()
 {
 	if (m_pThread != NULL)
 	{
 		m_bExitFlag = TRUE;
-		DWORD dwResult = ::WaitForSingleObject(m_pThread->m_hThread, INFINITE);
+
+		HANDLE arhList[2];
+		arhList[0] = m_pThread->m_hThread;
+		arhList[1] = (HANDLE)g_ExitEvent;
+		DWORD dwResult = ::WaitForMultipleObjects(2, arhList, FALSE, INFINITE);
+		//DWORD dwResult = ::WaitForSingleObject(m_pThread->m_hThread, INFINITE);
 
 		if (dwResult == WAIT_FAILED)
 			TRACE(_T("Thread Exit Failed\n"));
 		else if (dwResult == WAIT_OBJECT_0)
 			TRACE(_T("Thread Exit\n"));
+		else if (dwResult == WAIT_OBJECT_0 + 1)
+			TRACE(_T("예제가 종료!"));
 
 		m_pThread = NULL;
 	}
@@ -450,16 +468,19 @@ void CChatSDlg::HandleListMsgS(CString msg, BOOL isLog)
 
 void CChatSDlg::OnBnClickedButtonConnectC()
 {
-	if (m_ClientSoc.Create())
-	{
-		HandleConnectC();
-		//ThreadFunc(LPVOID lParam);
-		//m_pThread = ::AfxBeginThread(ThreadFunc, this);
-	}
-	else
-	{
-		HandleListMsgC(_T("Fail Create Socket"));
-	}
+	m_pThread = ::AfxBeginThread(ThreadFunc, this);
+
+
+	//if (m_ClientSoc.Create())
+	//{
+	//	//HandleConnectC();
+	//	//ThreadFunc(LPVOID lParam);
+	//	m_pThread = ::AfxBeginThread(ThreadFunc, this);
+	//}
+	//else
+	//{
+	//	HandleListMsgC(_T("Fail Create Socket"));
+	//}
 }
 
 
