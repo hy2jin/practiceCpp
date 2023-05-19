@@ -110,6 +110,14 @@ public:
 	BOOL m_isServerBlock = FALSE;
 	BOOL m_isClientBlock = FALSE;
 
+
+public:
+	CWinThread* m_pThread;
+	bool m_bExitFlag;
+	static UINT ThreadFunc(LPVOID lParam);
+	static void Wait(ULONGLONG dwMillisecond);
+	void ExitThread();
+
 };
 
 extern BOOL m_isServerBlock, m_isClientBlock;

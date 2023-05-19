@@ -62,6 +62,8 @@ END_MESSAGE_MAP()
 
 CChatSDlg::CChatSDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CChatSDlg::IDD, pParent)
+	, m_bExitFlag(FALSE)
+	, m_pThread(NULL)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -200,6 +202,74 @@ HCURSOR CChatSDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+UINT CChatSDlg::ThreadFunc(LPVOID lParam)
+{
+	CChatSDlg* pDlg = (CChatSDlg*)lParam;
+
+	CString connectedMsg;
+
+	while (pDlg->m_TryCount < 3)
+	{
+		if (pDlg->m_ClientSoc.Connect(pDlg->m_strIpC, _ttoi(pDlg->m_strPortC)))
+		{
+			connectedMsg.Format(_T("Try-%d : SUCCESS"), ++pDlg->m_TryCount);
+			pDlg->HandleListMsgC(connectedMsg);
+
+			pDlg->HandleEditFlagC(TRUE);
+			pDlg->m_TryCount = 0;
+
+			return 0;
+		}
+
+		connectedMsg.Format(_T("Try-%d : FAIL"), ++pDlg->m_TryCount);
+		pDlg->HandleListMsgC(connectedMsg);
+
+	}
+
+	pDlg->OnBnClickedButtonDisconnectC();
+	pDlg->ExitThread();
+
+	return 0;
+
+	//if (pDlg->m_ClientSoc.Connect(pDlg->m_strIpC, _ttoi(pDlg->m_strPortC)))
+	//{	//성공
+	//	connectedMsg.Format(_T("Try-%d : SUCCESS"), ++pDlg->m_TryCount);
+	//	pDlg->HandleListMsgC(connectedMsg);
+
+	//	pDlg->HandleEditFlagC(TRUE);
+	//	pDlg->m_TryCount = 0;
+	//}
+	//else if (pDlg->m_TryCount < 2)
+	//{	//실패했지만 다시 시도
+	//	connectedMsg.Format(_T("Try-%d : FAIL"), ++pDlg->m_TryCount);
+	//	pDlg->HandleListMsgC(connectedMsg);
+
+	//	pDlg->HandleConnectC();
+	//}
+	//else
+	//{	//마지막 시도 실패(3회차)
+	//	connectedMsg.Format(_T("Try-%d : FAIL"), ++pDlg->m_TryCount);
+	//	pDlg->HandleListMsgC(connectedMsg);
+
+	//	pDlg->OnBnClickedButtonDisconnectC();
+	//}
+}
+
+void CChatSDlg::ExitThread()
+{
+	if (m_pThread != NULL)
+	{
+		m_bExitFlag = TRUE;
+		DWORD dwResult = ::WaitForSingleObject(m_pThread->m_hThread, INFINITE);
+
+		if (dwResult == WAIT_FAILED)
+			TRACE(_T("Thread Exit Failed\n"));
+		else if (dwResult == WAIT_OBJECT_0)
+			TRACE(_T("Thread Exit\n"));
+
+		m_pThread = NULL;
+	}
+}
 
 void CChatSDlg::CreateIniFile()
 {
@@ -383,6 +453,8 @@ void CChatSDlg::OnBnClickedButtonConnectC()
 	if (m_ClientSoc.Create())
 	{
 		HandleConnectC();
+		//ThreadFunc(LPVOID lParam);
+		//m_pThread = ::AfxBeginThread(ThreadFunc, this);
 	}
 	else
 	{
@@ -394,29 +466,27 @@ void CChatSDlg::OnBnClickedButtonConnectC()
 void CChatSDlg::HandleConnectC()
 {
 	CString connectedMsg;
-	
-	if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
-	{	//성공
-		connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
-		HandleListMsgC(connectedMsg);
 
-		HandleEditFlagC(TRUE);
-		m_TryCount = 0;
+	while (m_TryCount < 3)
+	{
+		if (m_ClientSoc.Connect(m_strIpC, _ttoi(m_strPortC)))
+		{
+			connectedMsg.Format(_T("Try-%d : SUCCESS"), ++m_TryCount);
+			HandleListMsgC(connectedMsg);
+
+			HandleEditFlagC(TRUE);
+			m_TryCount = 0;
+			break;
+		}
+		else
+		{
+			connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
+			HandleListMsgC(connectedMsg);
+		}
 	}
-	else if (m_TryCount < 2)
-	{	//실패했지만 다시 시도
-		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
-		HandleListMsgC(connectedMsg);
 
-		HandleConnectC();
-	}
-	else
-	{	//마지막 시도 실패(3회차)
-		connectedMsg.Format(_T("Try-%d : FAIL"), ++m_TryCount);
-		HandleListMsgC(connectedMsg);
-
+	if (m_TryCount > 0)
 		OnBnClickedButtonDisconnectC();
-	}
 }
 
 
