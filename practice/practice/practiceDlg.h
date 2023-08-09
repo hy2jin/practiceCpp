@@ -47,7 +47,7 @@ public:
 
 	};
 	CArray<CPerson> m_people[COUNT_PEOPLE];
-	CArray<CPerson> *pPerson0, *pPerson1;
+	CArray<CPerson> *pPerson;
 	CListBox m_list;
 
 // 구현입니다.
@@ -60,9 +60,11 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	void AddPeople();
+
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnBnClickedButton1();
-	
+	afx_msg void OnBnClickedButton2();
 };
 
