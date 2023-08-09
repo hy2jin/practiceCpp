@@ -114,13 +114,14 @@ int CpracticeDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	int i = 0;
 	CPerson dump;
+	CString strNum;
 	for (i = 1; i <= 10; i++)
 	{
-		CString strNum; strNum.Format(_T("%d"), i);
+		strNum.Format(_T("%d"), i);
 		dump.reset();
 
 		dump.m_name = _T("이름") + strNum;
-		dump.m_age = 12;
+		dump.m_age = i;
 		dump.m_school[0] = _T("가") + strNum;
 		dump.m_school[1] = _T("나") + strNum;
 		dump.m_school[2] = _T("다") + strNum;
@@ -130,11 +131,11 @@ int CpracticeDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	for (i = 1; i <= 5; i++)
 	{
-		CString strNum; strNum.Format(_T("%d"), i);
+		strNum.Format(_T("%d"), i);
 		dump.reset();
 
 		dump.m_name = _T("네임") + strNum;
-		dump.m_age = 23;
+		dump.m_age = i;
 		dump.m_school[0] = _T("라") + strNum;
 		dump.m_school[1] = _T("마") + strNum;
 		dump.m_school[2] = _T("바") + strNum;
@@ -148,8 +149,13 @@ int CpracticeDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CpracticeDlg::OnBnClickedButton1()
 {
-	m_list.ResetContent();
-	for (int i = 0; i < m_people[0].GetSize(); i++)
+	int listCount = m_list.GetCount();
+	if (listCount > 0)
+	{
+		m_list.AddString(_T("========"));
+	}
+
+	for (int i = 0; i < m_people[0].GetSize(); i++)	//GetCount()랑 GetSize()랑 같은 값을 반환함
 	{
 		CString info;
 		info.Format(_T("%s, %d살, %s, %s, %s")
