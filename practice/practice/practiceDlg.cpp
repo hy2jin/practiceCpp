@@ -154,10 +154,9 @@ void CpracticeDlg::OnBnClickedButton1()
 	{
 		m_list.AddString(_T("========"));
 	}
-
+	CString info;
 	for (int i = 0; i < m_people[0].GetSize(); i++)	//GetCount()랑 GetSize()랑 같은 값을 반환함
 	{
-		CString info;
 		info.Format(_T("%s, %d살, %s, %s, %s")
 			, m_people[0].GetAt(i).m_name
 			, m_people[0].GetAt(i).m_age
@@ -168,4 +167,26 @@ void CpracticeDlg::OnBnClickedButton1()
 
 		m_list.AddString(info);
 	}
+	m_list.AddString(_T("= = = = ="));
+	for (int j = 0; j < pPerson1->GetSize(); j++)
+	{
+		info.Format(_T("%s, %d살, %s, %s, %s")		//두 가지 방법 다 사용 가능함
+			, (*pPerson1)[j].m_name
+			, (*pPerson1)[j].m_age
+			, (*pPerson1)[j].m_school[0]
+			, (*pPerson1)[j].m_school[1]
+			, (*pPerson1)[j].m_school[2]
+			);
+		/*info.Format(_T("%s, %d살, %s, %s, %s")
+			, pPerson1->GetAt(j).m_name
+			, pPerson1->GetAt(j).m_age
+			, pPerson1->GetAt(j).m_school[0]
+			, pPerson1->GetAt(j).m_school[1]
+			, pPerson1->GetAt(j).m_school[2]
+		);*/
+
+		m_list.AddString(info);
+	}
+
+	m_list.SetCurSel(m_list.GetCount() - 1);		//스크롤 아래로 내리기
 }
