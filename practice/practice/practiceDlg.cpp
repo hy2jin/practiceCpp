@@ -33,6 +33,7 @@ BEGIN_MESSAGE_MAP(CpracticeDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_CREATE()
 	ON_BN_CLICKED(IDC_BUTTON1, &CpracticeDlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CpracticeDlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -44,8 +45,8 @@ BOOL CpracticeDlg::OnInitDialog()
 
 	// 이 대화 상자의 아이콘을 설정합니다.  응용 프로그램의 주 창이 대화 상자가 아닐 경우에는
 	//  프레임워크가 이 작업을 자동으로 수행합니다.
-	SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
-	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
+	//SetIcon(m_hIcon, TRUE);			// 큰 아이콘을 설정합니다.
+	//SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
 
@@ -107,86 +108,86 @@ int CpracticeDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
-	pPerson0 = &m_people[0]; pPerson0->RemoveAll();
-	pPerson1 = &m_people[1]; pPerson1->RemoveAll();
-
-
-	int i = 0;
-	CPerson dump;
+	int i;
+	CPersonInGroup dump;
 	CString strNum;
+
+	pPIG = &m_PIG[0]; pPIG->RemoveAll();
 	for (i = 1; i <= 10; i++)
 	{
 		strNum.Format(_T("%d"), i);
 		dump.reset();
 
+		dump.m_group = _T("그룹1");
 		dump.m_name = _T("이름") + strNum;
-		dump.m_age = i;
-		dump.m_school[0] = _T("가") + strNum;
-		dump.m_school[1] = _T("나") + strNum;
-		dump.m_school[2] = _T("다") + strNum;
+		dump.m_number = i;
+		dump.m_license[0] = _T("가") + strNum;
+		dump.m_license[1] = _T("나") + strNum;
+		dump.m_license[2] = _T("다") + strNum;
 
-		pPerson0->Add(dump);
+		pPIG->Add(dump);
 	}
 
+	pPIG = &m_PIG[1]; pPIG->RemoveAll();
 	for (i = 1; i <= 5; i++)
 	{
 		strNum.Format(_T("%d"), i);
 		dump.reset();
 
-		dump.m_name = _T("네임") + strNum;
-		dump.m_age = i;
-		dump.m_school[0] = _T("라") + strNum;
-		dump.m_school[1] = _T("마") + strNum;
-		dump.m_school[2] = _T("바") + strNum;
+		dump.m_group		= _T("그룹2");
+		dump.m_name			= _T("네임") + strNum;
+		dump.m_number		= i;
+		dump.m_license[0]	= _T("라") + strNum;
+		dump.m_license[1]	= _T("마") + strNum;
+		dump.m_license[2]	= _T("바") + strNum;
 
-		pPerson1->Add(dump);
+		pPIG->Add(dump);
 	}
 
 	return 0;
 }
 
 
-void CpracticeDlg::OnBnClickedButton1()
+void CpracticeDlg::AddPeople()
 {
-	int listCount = m_list.GetCount();
-	if (listCount > 0)
-	{
-		m_list.AddString(_T("========"));
-	}
-	CString info;
-	for (int i = 0; i < m_people[0].GetSize(); i++)	//GetCount()랑 GetSize()랑 같은 값을 반환함
-	{
-		info.Format(_T("%s, %d살, %s, %s, %s")
-			, m_people[0].GetAt(i).m_name
-			, m_people[0].GetAt(i).m_age
-			, m_people[0].GetAt(i).m_school[0]
-			, m_people[0].GetAt(i).m_school[1]
-			, m_people[0].GetAt(i).m_school[2]
-		);
+	if (m_list.GetCount() > 0)
+		m_list.AddString(_T("================================"));
 
-		m_list.AddString(info);
-	}
-	m_list.AddString(_T("= = = = ="));
-	for (int j = 0; j < pPerson1->GetSize(); j++)
+	CString info;
+	for (int idx = 0; idx < pPIG->GetSize(); idx++)
 	{
-		info.Format(_T("%s, %d살, %s, %s, %s")		//두 가지 방법 다 사용 가능함
-			, (*pPerson1)[j].m_name
-			, (*pPerson1)[j].m_age
-			, (*pPerson1)[j].m_school[0]
-			, (*pPerson1)[j].m_school[1]
-			, (*pPerson1)[j].m_school[2]
+		info.Format(_T("%s-%s, %d번, %s, %s, %s")		//두 가지 방법 다 사용 가능함
+			, (*pPIG)[idx].m_group
+			, (*pPIG)[idx].m_name
+			, (*pPIG)[idx].m_number
+			, (*pPIG)[idx].m_license[0]
+			, (*pPIG)[idx].m_license[1]
+			, (*pPIG)[idx].m_license[2]
 			);
-		/*info.Format(_T("%s, %d살, %s, %s, %s")
-			, pPerson1->GetAt(j).m_name
-			, pPerson1->GetAt(j).m_age
-			, pPerson1->GetAt(j).m_school[0]
-			, pPerson1->GetAt(j).m_school[1]
-			, pPerson1->GetAt(j).m_school[2]
+		/*info.Format(_T("%s-%s, %d번, %s, %s, %s")
+			, pPIG->GetAt(idx).m_group
+			, pPIG->GetAt(idx).m_name
+			, pPIG->GetAt(idx).m_number
+			, pPIG->GetAt(idx).m_license[0]
+			, pPIG->GetAt(idx).m_license[1]
+			, pPIG->GetAt(idx).m_license[2]
 		);*/
 
 		m_list.AddString(info);
 	}
 
-	m_list.SetCurSel(m_list.GetCount() - 1);		//스크롤 아래로 내리기
+	m_list.SetAnchorIndex(m_list.GetCount() - 1);		//스크롤 아래로 내리기
+}
+
+void CpracticeDlg::OnBnClickedButton1()
+{
+	pPIG = &m_PIG[0];
+	AddPeople();
+}
+
+
+void CpracticeDlg::OnBnClickedButton2()
+{
+	pPIG = &m_PIG[1];
+	AddPeople();
 }
